@@ -1,0 +1,6 @@
+[submodule "libnv"]
+	path = libnv
+	url = https://github.com/netvfy/libnv.git
+[submodule "tapcfg"]
+	path = tapcfg
+	url = https://github.com/netvfy/tapcfg.git
