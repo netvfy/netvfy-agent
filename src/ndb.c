@@ -86,10 +86,10 @@ ndb_fullpath(const char *file, char *fullname)
 {
 #ifdef _WIN32
 	return snprintf(fullname, 256, "%s%s%s%s",
-	    getenv("AppData"), "\\netvirt\\", "\\", file);
+	    getenv("AppData"), "\\netvfy\\", "\\", file);
 #else
 	return snprintf(fullname, 256, "%s%s%s%s",
-	    getenv("HOME"), "/.config/netvirt", "/", file);
+	    getenv("HOME"), "/.config/netvfy", "/", file);
 #endif
 }
 
@@ -105,7 +105,7 @@ ndb_init(void)
 
 #if defined(__unix__) || defined(__APPLE__)
 	{
-		/* Create ~/.config/netvirt/ if it doesn't exist. */
+		/* Create ~/.config/netvfy/ if it doesn't exist. */
 		struct	 stat st;
 		char	 path[256];
 

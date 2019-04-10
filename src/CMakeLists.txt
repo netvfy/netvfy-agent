@@ -72,25 +72,25 @@ if (WITH_GUI)
 
 	add_definitions(${QT5_DEFINITIONS})
 
-	add_executable(netvirt-agent2 MACOSX_BUNDLE WIN32 ${nvagent_sources} ${gui_sources} ${gui_headers_moc} ${gui_form_headers} ${gui_rccs_srcs} ${win_rc_icon})
+	add_executable(netvfy-agent MACOSX_BUNDLE WIN32 ${nvagent_sources} ${gui_sources} ${gui_headers_moc} ${gui_form_headers} ${gui_rccs_srcs} ${win_rc_icon})
 
 	if (WIN32)
-		set_target_properties(netvirt-agent2 PROPERTIES LINK_FLAGS "-mwindows")
+		set_target_properties(netvfy-agent PROPERTIES LINK_FLAGS "-mwindows")
 	elseif (APPLE)
-		set_target_properties(netvirt-agent2 PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/gui/Info.plist)
+		set_target_properties(netvfy-agent PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/gui/Info.plist)
 	endif()
 
-	target_link_libraries(netvirt-agent2 Qt5::Widgets Qt5::Network ${QT5_LIBRARIES})
+	target_link_libraries(netvfy-agent Qt5::Widgets Qt5::Network ${QT5_LIBRARIES})
 
 else()
 	set(cli_sources
 		cli/main.c)
 
-	add_executable(netvirt-agent2 MACOSX_BUNDLE ${nvagent_sources} ${cli_sources})
+	add_executable(netvfy-agent MACOSX_BUNDLE ${nvagent_sources} ${cli_sources})
 endif()
 
 if (APPLE)
-	target_link_libraries(netvirt-agent2
+	target_link_libraries(netvfy-agent
 		${TAPCFG_ROOT_DIR}/build/libtapcfg.a
 		curl
 		nv
@@ -110,7 +110,7 @@ elseif (WIN32)
 		${LIBJANSSON_ROOT_DIR}/src/.libs/libjansson*dll
 		${LIBEVENT_ROOT_DIR}/.libs/libevent*dll)
 
-	target_link_libraries(netvirt-agent2
+	target_link_libraries(netvfy-agent
 		ws2_32
 		nv
 		${LIBS_FOR_WIN32}
@@ -118,7 +118,7 @@ elseif (WIN32)
 		${TAPCFG_ROOT_DIR}/build/tapcfg.dll
 	)
 else()
-	target_link_libraries(netvirt-agent2
+	target_link_libraries(netvfy-agent
 		curl
 		${TAPCFG_ROOT_DIR}/build/libtapcfg.a
 		nv
@@ -131,7 +131,7 @@ else()
 	)
 endif()
 
-install(TARGETS netvirt-agent2
+install(TARGETS netvfy-agent
     BUNDLE DESTINATION . COMPONENT Runtime
     RUNTIME DESTINATION bin COMPONENT Runtime
     )

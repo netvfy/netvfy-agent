@@ -1,24 +1,24 @@
-name: netvirt-agent2
-version: 2.0.2b
-summary: NetVirt a is network virtualization platform.
+name: netvfy-agent
+version: 1.0.0
+summary: Netvfy - Connect to your secure virtual network.
 description: |
-  NetVirt a is network virtualization platform.
+  Netvfy - Connect to your secure virtual network.
 
-  This snap contains the NetVirt agent.
+  This snap contains the Netvfy agent.
 
 confinement: strict
 grade: stable
 
 apps:
-  netvirt-agent2:
-    command: netvirt-agent2
+  netvfy-agent:
+    command: netvfy-agent
     plugs:
       - network
       - network-bind
       - network-control
 
 parts:
-  netvirt-agent2:
+  netvfy-agent:
     plugin: cmake
     source: .
     source-type: git

@@ -4,7 +4,7 @@ set -e
 
 case "$1" in
 	purge)
-		rm -rf ~/.config/netvirt
+		rm -rf ~/.config/netvfy
 	;;
 esac
 
