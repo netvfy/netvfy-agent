@@ -149,7 +149,8 @@ ndb_init(void)
 		if ((n = ndb_network_new()) == NULL)
 			return (-1);
 
-		if (json_unpack(jnetwork, "{s:s, s:s, s:s, s:s}", "name", &n->name,
+		if (json_unpack(jnetwork, "{s:s, s:s, s:s, s:s, s:s}",
+		    "name", &n->name, "api_srv", &n->api_srv,
 		    "cert", &n->cert, "pvkey", &n->pvkey, "cacert", &n->cacert) < 0) {
 			fprintf(stderr, "%s: json_unpack\n", __func__);
 			return (-1);
@@ -209,6 +210,7 @@ ndb_network_new()
 	}
 	n->idx = 0;
 	n->name = NULL;
+	n->api_srv = NULL;
 	n->cert = NULL;
 	n->pvkey = NULL;
 	n->cacert = NULL;
@@ -299,6 +301,8 @@ ndb_save()
 
 		if (json_object_set_new_nocheck(jnetwork, "name",
 		    json_string(n->name)) < 0 ||
+		    json_object_set_new_nocheck(jnetwork, "api_srv",
+		    json_string(n->api_srv)) < 0 ||
 		    json_object_set_new_nocheck(jnetwork, "pvkey",
 		    json_string(n->pvkey)) < 0 ||
 		    json_object_set_new_nocheck(jnetwork, "cert",
@@ -410,6 +414,7 @@ ndb_provisioning(const char *provlink, const char *network_name)
 		return (-1);
 	}
 
+	netcf->api_srv = strdup(provsrv_addr);
 
 	/* XXX cleanup needed */
 

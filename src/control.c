@@ -33,6 +33,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <curl/curl.h>
+
 #include <event2/buffer.h>
 #include <event2/bufferevent.h>
 #include <event2/bufferevent_ssl.h>
@@ -59,6 +61,7 @@ struct vlink {
 	int			 tapfd;
 	char			*addr;
 	char			*port;
+	char			*api_srv;
 	char			*netname;
 };
 
@@ -81,6 +84,9 @@ static struct tls_peer		*tls_peer_new();
 static int			 cert_verify_cb(int, X509_STORE_CTX *);
 static void			 info_cb(const SSL *, int, int);
 static SSL_CTX			*ctx_init();
+
+static size_t			 fetch_netinfos_cb(void *, size_t, size_t, void *);
+static int			 fetch_netinfos(struct vlink *);
 
 static void			 vlink_free(struct vlink *);
 static int			 vlink_connect(struct tls_peer *, struct vlink *);
@@ -343,6 +349,129 @@ error:
 	return (ctx);
 }
 
+size_t
+fetch_netinfos_cb(void *ptr, size_t size, size_t nmemb, void *arg)
+{
+	json_t		*jmsg = NULL;
+	json_t		*jnetinfos;
+	json_t		*jnetinfo;
+	json_error_t	 error;
+	struct vlink	*v = arg;
+	size_t		 i, array_size;
+	size_t		 ret = -1;
+	const char	*family;
+	const char	*addr;
+	const char	*port;
+
+	if ((jmsg = json_loadb(ptr, size*nmemb, 0, &error)) == NULL) {
+		log_warnx("%s: json_loadb: %s\n", __func__, error.text);
+		goto err;
+	}
+
+	if ((jnetinfos = json_object_get(jmsg, "netinfos")) == NULL) {
+		log_warnx("%s: json_object_get", __func__);
+		goto err;
+	}
+
+	if ((array_size = json_array_size(jnetinfos)) == 0) {
+		log_warnx("%s: json_array_size", __func__);
+		goto err;
+	}
+
+	for (i = 0; i < array_size; i++) {
+
+		if ((jnetinfo = json_array_get(jnetinfos, i)) == NULL) {
+			log_warnx("%s: json_array_get", __func__);
+			goto err;
+		}
+
+		if (json_unpack(jnetinfo, "{s:s, s:s, s:s}",
+		    "family", &family, "addr", &addr, "port", &port) < 0) {
+			log_warnx("%s: json_unpack", __func__);
+			goto err;
+		}
+
+		if (strcmp(family, "inet") == 0) {
+			if ((v->addr = strdup(addr)) == NULL) {
+				log_warn("%s: strdup", __func__);
+				goto err;
+			}
+
+			if ((vlink->port = strdup(port)) == NULL) {
+				log_warn("%s: strdup", __func__);
+				goto err;
+			}
+		}
+	}
+
+	ret = size*nmemb;
+err:
+	json_decref(jmsg);
+
+	return (ret);
+}
+
+int
+fetch_netinfos(struct vlink *v)
+{
+	json_t			*jquery = NULL;
+	CURL			*curl;
+	CURLcode		 res;
+	struct curl_slist	*req_headers = NULL;
+	int			 ret = -1;
+	char			 url[256];
+	char			*payload = NULL;
+
+	jquery = json_object();
+	json_object_set_new(jquery, "network",
+	    json_string(v->passport->certinfo->network_uid));
+	json_object_set_new(jquery, "node",
+	    json_string(v->passport->certinfo->node_uid));
+	payload = json_dumps(jquery, 0);
+
+	snprintf(url, sizeof(url), "https://%s/v1/netinfos", v->api_srv);
+
+	/* In windows, this will init the winsock stuff */
+	curl_global_init(CURL_GLOBAL_ALL);
+
+	if ((curl = curl_easy_init()) == NULL) {
+		log_warnx("%s: curl_easy_init", __func__);
+		goto err;
+	}
+
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fetch_netinfos_cb);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, v);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L);
+
+#ifdef _WIN32
+	curl_easy_setopt(curl, CURLOPT_CAINFO, "curl-ca-bundle.crt");
+#endif
+
+	req_headers = curl_slist_append(req_headers, "Content-Type: application/json");
+	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, req_headers);
+
+	/* Now specify the POST data */
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, payload);
+
+	if ((res = curl_easy_perform(curl)) != CURLE_OK) {
+		log_warnx("%s: curl_easy_perform: %s\n",
+		    __func__, curl_easy_strerror(res));
+		goto err;
+	}
+
+	curl_easy_cleanup(curl);
+
+	ret = 0;
+err:
+	curl_global_cleanup();
+
+	free(payload);
+	json_decref(jquery);
+
+	return (ret);
+}
+
 void
 vlink_free(struct vlink *v)
 {
@@ -387,6 +516,16 @@ vlink_connect(struct tls_peer *p, struct vlink *v)
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
+
+	if ((ret = fetch_netinfos(v)) < 0) {
+		log_warnx("%s: fetch_netinfos", __func__);
+		goto out;
+	}
+
+	if (v->addr == NULL || v->port == NULL) {
+		log_warnx("%s: invalid addr and port", __func__);
+		goto out;
+	}
 
 	if ((ret = getaddrinfo(v->addr, v->port, &hints, &res)) < 0) {
 		log_warnx("%s: getaddrinfo %s", __func__, gai_strerror(ret));
@@ -653,6 +792,7 @@ control_init(const char *network_name)
 	vlink->ev_readagain = NULL;
 	vlink->addr = NULL;
 	vlink->port = NULL;
+	vlink->api_srv = NULL;
 	vlink->netname = NULL;
 
 	if ((vlink->tapcfg = tapcfg_init()) == NULL) {
@@ -670,15 +810,7 @@ control_init(const char *network_name)
 		goto error;
 	}
 
-	if ((vlink->addr = strdup(netcf->ctlsrv_addr)) == NULL) {
-		log_warn("%s: strdup", __func__);
-		goto error;
-	}
-
-	if ((vlink->port = strdup("7032")) == NULL) {
-		log_warn("%s: strdup", __func__);
-		goto error;
-	}
+	vlink->api_srv = netcf->api_srv;
 
 	if ((vlink->passport =
 	    pki_passport_load_from_memory(netcf->cert, netcf->pvkey, netcf->cacert)) == NULL) {

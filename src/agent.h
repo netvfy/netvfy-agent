@@ -33,7 +33,7 @@ struct network {
 	RB_ENTRY(network)	 entry;
 	size_t			 idx;
 	char			*name;
-	char			*ctlsrv_addr;
+	char			*api_srv;
 	char			*cert;
 	char			*pvkey;
 	char			*cacert;
