@@ -36,11 +36,10 @@ else()
 	set(library_dest_dir lib)
 endif()
 
-add_subdirectory(libnv)
-
 option (WITH_GUI "WITH_GUI" OFF)
 
-include_directories("libnv/src/")
+add_subdirectory(libnv)
+include_directories("./libnv/src/")
 
 add_subdirectory(src)
 

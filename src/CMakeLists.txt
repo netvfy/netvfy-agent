@@ -3,8 +3,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_subdirectory(tests)
 
-option (WITH_GUI "WITH_GUI" ON)
-
 if(APPLE AND EXISTS /usr/local/opt/qt5)
 	# Homebrew installs Qt5 (up to at least 5.9.1) in
 	# /usr/local/qt5, ensure it can be found by CMake since
