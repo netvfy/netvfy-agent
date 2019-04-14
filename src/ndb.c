@@ -149,7 +149,7 @@ ndb_init(void)
 		if ((n = ndb_network_new()) == NULL)
 			return (-1);
 
-		if (json_unpack(jnetwork, "{s:s, s:s, s:s, s:s, s:s}", "name", &n->name, "ctlsrv_addr", &n->ctlsrv_addr,
+		if (json_unpack(jnetwork, "{s:s, s:s, s:s, s:s}", "name", &n->name,
 		    "cert", &n->cert, "pvkey", &n->pvkey, "cacert", &n->cacert) < 0) {
 			fprintf(stderr, "%s: json_unpack\n", __func__);
 			return (-1);
@@ -209,7 +209,6 @@ ndb_network_new()
 	}
 	n->idx = 0;
 	n->name = NULL;
-	n->ctlsrv_addr = NULL;
 	n->cert = NULL;
 	n->pvkey = NULL;
 	n->cacert = NULL;
@@ -300,8 +299,6 @@ ndb_save()
 
 		if (json_object_set_new_nocheck(jnetwork, "name",
 		    json_string(n->name)) < 0 ||
-		    json_object_set_new_nocheck(jnetwork, "ctlsrv_addr",
-		    json_string(n->ctlsrv_addr)) < 0 ||
 		    json_object_set_new_nocheck(jnetwork, "pvkey",
 		    json_string(n->pvkey)) < 0 ||
 		    json_object_set_new_nocheck(jnetwork, "cert",
@@ -333,7 +330,6 @@ ndb_prov_cb(void *ptr, size_t size, size_t nmemb, void *arg)
 	json_t			*jmsg;
 	json_error_t		 error;
 	struct network		*netcfg = arg;
-	const char		*ctlsrv_addr;
 	const char		*cacert;
 	const char		*cert;
 
@@ -342,13 +338,12 @@ ndb_prov_cb(void *ptr, size_t size, size_t nmemb, void *arg)
 		goto err;
 	}
 
-	if (json_unpack(jmsg, "{s:s, s:s, s:s}",
-	    "ctlsrv_addr", &ctlsrv_addr, "cert", &cert, "cacert", &cacert) < 0) {
+	if (json_unpack(jmsg, "{s:s, s:s}",
+	    "cert", &cert, "cacert", &cacert) < 0) {
 		fprintf(stdout, "%s: json_unpack", __func__);
 		goto err;
 	}
 
-	netcfg->ctlsrv_addr = strdup(ctlsrv_addr);
 	ndb_network_add(netcfg, cert, cacert);
 
 	json_decref(jmsg);
