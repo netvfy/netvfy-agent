@@ -429,6 +429,7 @@ ndb_provisioning(const char *provlink, const char *network_name)
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ndb_prov_cb);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, netcf);
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L);
 
 #ifdef _WIN32
 		curl_easy_setopt(curl, CURLOPT_CAINFO, "curl-ca-bundle.crt");
