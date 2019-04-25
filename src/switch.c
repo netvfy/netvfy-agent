@@ -53,6 +53,10 @@
 #include <tapcfg.h>
 
 #include "agent.h"
+   
+#define IP4_HDRLEN 20      
+#define ARP_HDRLEN 28      
+#define ARPOP_REQUEST 1  
 
 enum nv_type {
 	NV_KEEPALIVE		= 0,
@@ -64,6 +68,18 @@ struct nv_hdr {
 	uint16_t		 type;
 	char			 value[];
 } __attribute__((__packed__));
+
+struct arp_hdr {
+  uint16_t htype;
+  uint16_t ptype;
+  uint8_t hlen;
+  uint8_t plen;
+  uint16_t opcode;
+  uint8_t sender_mac[6];
+  uint8_t sender_ip[4];
+  uint8_t target_mac[6];
+  uint8_t target_ip[4];
+};
 
 struct vlink {
 	passport_t		*passport;
@@ -525,6 +541,9 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 {
 	struct tls_peer	*p = arg;
 	struct timeval	 tv;
+	struct arp_hdr arphdr;
+	int frame_length;
+	uint8_t src_ip[4], src_mac[6], dst_mac[6], ether_frame[IP_MAXPACKET];
 	unsigned long	 e;
 
 	if (events & BEV_EVENT_CONNECTED) {
@@ -551,6 +570,33 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 		}
 		vlink_reconnect(p->vlink);
 	}
+	
+	// Prepare arp header.
+	// TODO(sneha): move this to another function.
+  	memcpy (&arphdr.sender_ip, src_ip, 4 * sizeof (uint8_t));
+  	memcpy (&arphdr.target_ip, src_ip, 4 * sizeof (uint8_t));
+	arphdr.htype = htons (1);
+ 	arphdr.ptype = htons (ETH_P_IP);
+  	arphdr.hlen = 6;
+  	arphdr.plen = 4;
+	arphdr.opcode = htons (ARPOP_REQUEST);
+  	memcpy (&arphdr.sender_mac, src_mac, 6 * sizeof (uint8_t));
+  	memset (&arphdr.target_mac, 0, 6 * sizeof (uint8_t));
+
+	// Send GARP.
+	// TODO(sneha): should this be a type of NV_L2?
+	memset (dst_mac, 0xff, 6 * sizeof (uint8_t));
+  	memcpy (ether_frame, dst_mac, 6 * sizeof (uint8_t));
+  	memcpy (ether_frame + 6, src_mac, 6 * sizeof (uint8_t));
+ 	ether_frame[12] = ETH_P_ARP / 256;
+  	ether_frame[13] = ETH_P_ARP % 256;
+
+  	memcpy (ether_frame + ETH_HDRLEN, &arphdr, ARP_HDRLEN * sizeof (uint8_t));
+
+	frame_length = 6 + 6 + 2 + ARP_HDRLEN;
+
+	// TODO(sneha): okay to not handle error here? 
+	vlink_send(p->vlink, NV_L2, ether_frame, frame_length)
 
 	return;
 }
