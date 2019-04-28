@@ -40,7 +40,7 @@ struct network {
 };
 
 void		 switch_fini(void);
-int		 switch_init(tapcfg_t *, int, const char *, const char *, const char *);
+int		 switch_init(tapcfg_t *, int, const char *, const char *, const char *, const char *);
 
 int		 ndb_init(void);
 void		 ndb_fini(void);

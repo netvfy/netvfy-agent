@@ -74,6 +74,7 @@ struct vlink {
 	struct event		*ev_readagain;
 	int			 tapfd;
 	char			*addr;
+	char			*port;
 };
 
 struct tls_peer {
@@ -611,8 +612,8 @@ error:
 }
 
 int
-switch_init(tapcfg_t *tapcfg, int tapfd, const char *vswitch_addr, const char *ipaddr,
-    const char *network_name)
+switch_init(tapcfg_t *tapcfg, int tapfd, const char *vswitch_addr,
+    const char *vswitch_port, const char *ipaddr, const char *network_name)
 {
 	if ((vlink = malloc(sizeof(struct vlink))) == NULL) {
 		log_warn("%s: malloc", __func__);
@@ -622,6 +623,7 @@ switch_init(tapcfg_t *tapcfg, int tapfd, const char *vswitch_addr, const char *i
 	vlink->tapcfg = NULL;
 	vlink->peer = NULL;
 	vlink->addr = NULL;
+	vlink->port = NULL;
 
 	vlink->tapcfg = tapcfg;
 	vlink->tapfd = tapfd;
@@ -639,6 +641,11 @@ switch_init(tapcfg_t *tapcfg, int tapfd, const char *vswitch_addr, const char *i
 		warn("%s:%d", "event_new", __LINE__);
 
 	if ((vlink->addr = strdup(vswitch_addr)) == NULL) {
+		log_warn("%s: strdup", __func__);
+		goto cleanup;
+	}
+
+	if ((vlink->port = strdup(vswitch_port)) == NULL) {
 		log_warn("%s: strdup", __func__);
 		goto cleanup;
 	}

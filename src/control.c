@@ -673,6 +673,7 @@ peer_read_cb(struct bufferevent *bev, void *arg)
 	const char		*action;
 	const char		*ipaddr;
 	const char		*vswitch_addr;
+	const char		*vswitch_port;
 	char			*msg = NULL;
 
 	while (evbuffer_get_length(bufferevent_get_input(bev)) > 0) {
@@ -693,15 +694,16 @@ peer_read_cb(struct bufferevent *bev, void *arg)
 		}
 
 		if (strcmp(action, "networkinfo") == 0) {
-
-			if (json_unpack(jmsg, "{s:s, s:s}", "vswitch_addr", &vswitch_addr, "ipaddr", &ipaddr)
-			    < 0) {
+			if (json_unpack(jmsg, "{s:s, s:s, s:s}",
+			    "vswitch_addr", &vswitch_addr,
+			    "vswitch_port", &vswitch_port,
+			    "ipaddr", &ipaddr) < 0) {
 				log_warnx("%s: json_unpack ipaddr", __func__);
 				goto error;
 			}
 
 			switch_fini();
-			switch_init(p->vlink->tapcfg, p->vlink->tapfd, vswitch_addr, ipaddr, p->vlink->netname);
+			switch_init(p->vlink->tapcfg, p->vlink->tapfd, vswitch_addr, vswitch_port, ipaddr, p->vlink->netname);
 		}
 
 		json_decref(jmsg);
