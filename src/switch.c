@@ -44,7 +44,6 @@
 #include <event2/buffer.h>
 #include <event2/bufferevent.h>
 #include <event2/bufferevent_ssl.h>
-
 #include <jansson.h>
 
 #include <inet.h>
@@ -57,6 +56,10 @@
 #define IP4_HDRLEN 20      
 #define ARP_HDRLEN 28      
 #define ARPOP_REQUEST 1  
+#define ETH_HDRLEN 14
+#define ETH_P_IP 0x0800
+#define ETH_P_ARP 0x0806	
+#define GARP_MAXPACKET 1500
 
 enum nv_type {
 	NV_KEEPALIVE		= 0,
@@ -543,7 +546,7 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 	struct timeval	 tv;
 	struct arp_hdr arphdr;
 	int frame_length;
-	uint8_t src_ip[4], src_mac[6], dst_mac[6], ether_frame[IP_MAXPACKET];
+	uint8_t src_ip[4], src_mac[6], dst_mac[6], ether_frame[GARP_MAXPACKET];
 	unsigned long	 e;
 
 	if (events & BEV_EVENT_CONNECTED) {
@@ -572,7 +575,6 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 	}
 	
 	// Prepare arp header.
-	// TODO(sneha): move this to another function.
   	memcpy (&arphdr.sender_ip, src_ip, 4 * sizeof (uint8_t));
   	memcpy (&arphdr.target_ip, src_ip, 4 * sizeof (uint8_t));
 	arphdr.htype = htons (1);
@@ -584,7 +586,6 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
   	memset (&arphdr.target_mac, 0, 6 * sizeof (uint8_t));
 
 	// Send GARP.
-	// TODO(sneha): should this be a type of NV_L2?
 	memset (dst_mac, 0xff, 6 * sizeof (uint8_t));
   	memcpy (ether_frame, dst_mac, 6 * sizeof (uint8_t));
   	memcpy (ether_frame + 6, src_mac, 6 * sizeof (uint8_t));
@@ -595,8 +596,7 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 
 	frame_length = 6 + 6 + 2 + ARP_HDRLEN;
 
-	// TODO(sneha): okay to not handle error here? 
-	vlink_send(p->vlink, NV_L2, ether_frame, frame_length)
+	vlink_send(p, NV_L2, ether_frame, frame_length);
 
 	return;
 }
