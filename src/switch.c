@@ -52,13 +52,13 @@
 #include <tapcfg.h>
 
 #include "agent.h"
-   
-#define IP4_HDRLEN 20      
-#define ARP_HDRLEN 28      
-#define ARPOP_REQUEST 1  
+
+#define IP4_HDRLEN 20
+#define ARP_HDRLEN 28
+#define ARPOP_REQUEST 1
 #define ETH_HDRLEN 14
 #define ETH_P_IP 0x0800
-#define ETH_P_ARP 0x0806	
+#define ETH_P_ARP 0x0806
 #define GARP_MAXPACKET 1500
 
 enum nv_type {
@@ -87,6 +87,7 @@ struct arp_hdr {
 struct vlink {
 	passport_t		*passport;
 	tapcfg_t		*tapcfg;
+	char			*tap_ipaddr;
 	struct tls_peer		*peer;
 	struct event		*ev_reconnect;
 	struct event		*ev_keepalive;
@@ -158,6 +159,7 @@ vlink_free(struct vlink *v)
 	event_free(v->ev_keepalive);
 	event_free(v->ev_readagain);
 	tls_peer_free(v->peer);
+	free(v->tap_ipaddr);
 	free(v->addr);
 	free(v);
 }
@@ -544,10 +546,13 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 {
 	struct tls_peer	*p = arg;
 	struct timeval	 tv;
-	struct arp_hdr arphdr;
-	int frame_length;
-	uint8_t src_ip[4], src_mac[6], dst_mac[6], ether_frame[GARP_MAXPACKET];
+	struct arp_hdr	 arphdr;
 	unsigned long	 e;
+	int		 frame_length;
+	uint8_t		 src_ip[4];
+	uint8_t		 src_mac[6];
+	uint8_t		 dst_mac[6];
+	uint8_t		 ether_frame[GARP_MAXPACKET];
 
 	if (events & BEV_EVENT_CONNECTED) {
 
@@ -573,27 +578,45 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 		}
 		vlink_reconnect(p->vlink);
 	}
+
+	/*** EXAMPLE SECTION to populate src_ip and src_mac ***/
+
+	/* (to remove)here just print the address to see it */
+	printf("src_ipaddr %s\n", vlink->tap_ipaddr);
+
+	/* populate src_ip */
+	evutil_inet_pton(AF_INET, vlink->tap_ipaddr, src_ip);
+
+	/* call tapcfg function to get back the mac address */
+	uint8_t *mac;
+	mac = tapcfg_iface_get_hwaddr(p->vlink->tapcfg, NULL);
+
+	/* (to remove) print the MAC to see it */
+	printf("%02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+	/* populate src_mac */
+	memcpy(mac, src_mac, sizeof(src_mac));
 	
-	// Prepare arp header.
-  	memcpy (&arphdr.sender_ip, src_ip, 4 * sizeof (uint8_t));
-  	memcpy (&arphdr.target_ip, src_ip, 4 * sizeof (uint8_t));
-	arphdr.htype = htons (1);
- 	arphdr.ptype = htons (ETH_P_IP);
-  	arphdr.hlen = 6;
-  	arphdr.plen = 4;
-	arphdr.opcode = htons (ARPOP_REQUEST);
-  	memcpy (&arphdr.sender_mac, src_mac, 6 * sizeof (uint8_t));
-  	memset (&arphdr.target_mac, 0, 6 * sizeof (uint8_t));
+	/*** END OF EXAMPLE ***/
 
-	// Send GARP.
-	memset (dst_mac, 0xff, 6 * sizeof (uint8_t));
-  	memcpy (ether_frame, dst_mac, 6 * sizeof (uint8_t));
-  	memcpy (ether_frame + 6, src_mac, 6 * sizeof (uint8_t));
- 	ether_frame[12] = ETH_P_ARP / 256;
-  	ether_frame[13] = ETH_P_ARP % 256;
+	/* Prepare GARP header */
+	memcpy(&arphdr.sender_ip, src_ip, 4 * sizeof(uint8_t));
+	memcpy(&arphdr.target_ip, src_ip, 4 * sizeof(uint8_t));
+	arphdr.htype = htons(1);
+	arphdr.ptype = htons(ETH_P_IP);
+	arphdr.hlen = 6;
+	arphdr.plen = 4;
+	arphdr.opcode = htons(ARPOP_REQUEST);
+  	memcpy(&arphdr.sender_mac, src_mac, 6 * sizeof(uint8_t));
+  	memset(&arphdr.target_mac, 0, 6 * sizeof(uint8_t));
 
-  	memcpy (ether_frame + ETH_HDRLEN, &arphdr, ARP_HDRLEN * sizeof (uint8_t));
-
+	/* Send GARP */
+	memset(dst_mac, 0xff, 6 * sizeof(uint8_t));
+	memcpy(ether_frame, dst_mac, 6 * sizeof(uint8_t));
+	memcpy(ether_frame + 6, src_mac, 6 * sizeof(uint8_t));
+	ether_frame[12] = ETH_P_ARP / 256;
+	ether_frame[13] = ETH_P_ARP % 256;
+	memcpy(ether_frame + ETH_HDRLEN, &arphdr, ARP_HDRLEN * sizeof(uint8_t));
 	frame_length = 6 + 6 + 2 + ARP_HDRLEN;
 
 	vlink_send(p, NV_L2, ether_frame, frame_length);
@@ -669,7 +692,7 @@ switch_init(tapcfg_t *tapcfg, int tapfd, const char *vswitch_addr,
 	vlink->tapcfg = NULL;
 	vlink->peer = NULL;
 	vlink->addr = NULL;
-	vlink->port = NULL;
+	vlink->tap_ipaddr = NULL;
 
 	vlink->tapcfg = tapcfg;
 	vlink->tapfd = tapfd;
@@ -699,6 +722,7 @@ switch_init(tapcfg_t *tapcfg, int tapfd, const char *vswitch_addr,
 	tapcfg_iface_set_status(tapcfg, TAPCFG_STATUS_IPV4_UP);
 	// XXX netmask not always 24
 	tapcfg_iface_set_ipv4(tapcfg, ipaddr, 24);
+	vlink->tap_ipaddr = strdup(ipaddr);
 
 	if ((netcf = ndb_network(network_name)) == NULL) {
 		log_warnx("%s: the network doesn't exist: %s",
