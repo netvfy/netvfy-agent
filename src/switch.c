@@ -579,25 +579,13 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 		vlink_reconnect(p->vlink);
 	}
 
-	/*** EXAMPLE SECTION to populate src_ip and src_mac ***/
 
-	/* (to remove)here just print the address to see it */
-	printf("src_ipaddr %s\n", vlink->tap_ipaddr);
-
-	/* populate src_ip */
+	/* Set src and dst ip and mac */
 	evutil_inet_pton(AF_INET, vlink->tap_ipaddr, src_ip);
-
-	/* call tapcfg function to get back the mac address */
 	uint8_t *mac;
 	mac = tapcfg_iface_get_hwaddr(p->vlink->tapcfg, NULL);
-
-	/* (to remove) print the MAC to see it */
-	printf("%02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
-	/* populate src_mac */
 	memcpy(mac, src_mac, sizeof(src_mac));
-	
-	/*** END OF EXAMPLE ***/
+	memset(dst_mac, 0xff, 6 * sizeof(uint8_t));
 
 	/* Prepare GARP header */
 	memcpy(&arphdr.sender_ip, src_ip, 4 * sizeof(uint8_t));
@@ -611,7 +599,6 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
   	memset(&arphdr.target_mac, 0, 6 * sizeof(uint8_t));
 
 	/* Send GARP */
-	memset(dst_mac, 0xff, 6 * sizeof(uint8_t));
 	memcpy(ether_frame, dst_mac, 6 * sizeof(uint8_t));
 	memcpy(ether_frame + 6, src_mac, 6 * sizeof(uint8_t));
 	ether_frame[12] = ETH_P_ARP / 256;
