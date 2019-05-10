@@ -584,7 +584,7 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 	evutil_inet_pton(AF_INET, vlink->tap_ipaddr, src_ip);
 	uint8_t *mac;
 	mac = tapcfg_iface_get_hwaddr(p->vlink->tapcfg, NULL);
-	memcpy(mac, src_mac, sizeof(src_mac));
+	memcpy(src_mac, mac, sizeof(src_mac));
 	memset(dst_mac, 0xff, 6 * sizeof(uint8_t));
 
 	/* Prepare GARP header */
