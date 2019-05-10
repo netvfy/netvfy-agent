@@ -44,7 +44,6 @@
 #include <event2/buffer.h>
 #include <event2/bufferevent.h>
 #include <event2/bufferevent_ssl.h>
-
 #include <jansson.h>
 
 #include <inet.h>
@@ -53,6 +52,14 @@
 #include <tapcfg.h>
 
 #include "agent.h"
+
+#define IP4_HDRLEN 20
+#define ARP_HDRLEN 28
+#define ARPOP_REQUEST 1
+#define ETH_HDRLEN 14
+#define ETH_P_IP 0x0800
+#define ETH_P_ARP 0x0806
+#define GARP_MAXPACKET 1500
 
 enum nv_type {
 	NV_KEEPALIVE		= 0,
@@ -65,9 +72,22 @@ struct nv_hdr {
 	char			 value[];
 } __attribute__((__packed__));
 
+struct arp_hdr {
+  uint16_t htype;
+  uint16_t ptype;
+  uint8_t hlen;
+  uint8_t plen;
+  uint16_t opcode;
+  uint8_t sender_mac[6];
+  uint8_t sender_ip[4];
+  uint8_t target_mac[6];
+  uint8_t target_ip[4];
+};
+
 struct vlink {
 	passport_t		*passport;
 	tapcfg_t		*tapcfg;
+	char			*tap_ipaddr;
 	struct tls_peer		*peer;
 	struct event		*ev_reconnect;
 	struct event		*ev_keepalive;
@@ -139,6 +159,7 @@ vlink_free(struct vlink *v)
 	event_free(v->ev_keepalive);
 	event_free(v->ev_readagain);
 	tls_peer_free(v->peer);
+	free(v->tap_ipaddr);
 	free(v->addr);
 	free(v);
 }
@@ -525,7 +546,13 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 {
 	struct tls_peer	*p = arg;
 	struct timeval	 tv;
+	struct arp_hdr	 arphdr;
 	unsigned long	 e;
+	int		 frame_length;
+	uint8_t		 src_ip[4];
+	uint8_t		 src_mac[6];
+	uint8_t		 dst_mac[6];
+	uint8_t		 ether_frame[GARP_MAXPACKET];
 
 	if (events & BEV_EVENT_CONNECTED) {
 
@@ -551,6 +578,35 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 		}
 		vlink_reconnect(p->vlink);
 	}
+
+
+	/* Set src and dst ip and mac */
+	evutil_inet_pton(AF_INET, vlink->tap_ipaddr, src_ip);
+	uint8_t *mac;
+	mac = tapcfg_iface_get_hwaddr(p->vlink->tapcfg, NULL);
+	memcpy(src_mac, mac, sizeof(src_mac));
+	memset(dst_mac, 0xff, 6 * sizeof(uint8_t));
+
+	/* Prepare GARP header */
+	memcpy(&arphdr.sender_ip, src_ip, 4 * sizeof(uint8_t));
+	memcpy(&arphdr.target_ip, src_ip, 4 * sizeof(uint8_t));
+	arphdr.htype = htons(1);
+	arphdr.ptype = htons(ETH_P_IP);
+	arphdr.hlen = 6;
+	arphdr.plen = 4;
+	arphdr.opcode = htons(ARPOP_REQUEST);
+  	memcpy(&arphdr.sender_mac, src_mac, 6 * sizeof(uint8_t));
+  	memset(&arphdr.target_mac, 0, 6 * sizeof(uint8_t));
+
+	/* Send GARP */
+	memcpy(ether_frame, dst_mac, 6 * sizeof(uint8_t));
+	memcpy(ether_frame + 6, src_mac, 6 * sizeof(uint8_t));
+	ether_frame[12] = ETH_P_ARP / 256;
+	ether_frame[13] = ETH_P_ARP % 256;
+	memcpy(ether_frame + ETH_HDRLEN, &arphdr, ARP_HDRLEN * sizeof(uint8_t));
+	frame_length = 6 + 6 + 2 + ARP_HDRLEN;
+
+	vlink_send(p, NV_L2, ether_frame, frame_length);
 
 	return;
 }
@@ -623,7 +679,7 @@ switch_init(tapcfg_t *tapcfg, int tapfd, const char *vswitch_addr,
 	vlink->tapcfg = NULL;
 	vlink->peer = NULL;
 	vlink->addr = NULL;
-	vlink->port = NULL;
+	vlink->tap_ipaddr = NULL;
 
 	vlink->tapcfg = tapcfg;
 	vlink->tapfd = tapfd;
@@ -653,6 +709,7 @@ switch_init(tapcfg_t *tapcfg, int tapfd, const char *vswitch_addr,
 	tapcfg_iface_set_status(tapcfg, TAPCFG_STATUS_IPV4_UP);
 	// XXX netmask not always 24
 	tapcfg_iface_set_ipv4(tapcfg, ipaddr, 24);
+	vlink->tap_ipaddr = strdup(ipaddr);
 
 	if ((netcf = ndb_network(network_name)) == NULL) {
 		log_warnx("%s: the network doesn't exist: %s",
