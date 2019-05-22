@@ -214,6 +214,7 @@ ndb_network_new()
 	n->cert = NULL;
 	n->pvkey = NULL;
 	n->cacert = NULL;
+	n->buf_total = 0;
 
 	return (n);
 }
@@ -328,33 +329,21 @@ out:
 	return (ret);
 }
 
-void
+size_t
 ndb_prov_cb(void *ptr, size_t size, size_t nmemb, void *arg)
 {
-	json_t			*jmsg;
-	json_error_t		 error;
 	struct network		*netcfg = arg;
-	const char		*cacert;
-	const char		*cert;
 
-	if ((jmsg = json_loadb(ptr, size*nmemb, 0, &error)) == NULL) {
-		fprintf(stdout, "%s: json_loadb - %s\n", __func__, error.text);
-		goto err;
-	}
+	/* Is there still some space in the buffer ? */
+	if (netcfg->buf_total < (sizeof(netcfg->buf) - 1))
+		/* If not enough space in buffer for the data we received, return error */
+			if ((sizeof(netcfg->buf) - 1 - netcfg->buf_total) < nmemb)
+				return (-1);
 
-	if (json_unpack(jmsg, "{s:s, s:s}",
-	    "cert", &cert, "cacert", &cacert) < 0) {
-		fprintf(stdout, "%s: json_unpack", __func__);
-		goto err;
-	}
+	memcpy(netcfg->buf + netcfg->buf_total, ptr, nmemb);
+	netcfg->buf_total += nmemb;
 
-	ndb_network_add(netcfg, cert, cacert);
-
-	json_decref(jmsg);
-
-	exit(0);
-err:
-	return;
+	return (nmemb);
 }
 
 int
@@ -363,6 +352,8 @@ ndb_provisioning(const char *provlink, const char *network_name)
 	EVP_PKEY			*keyring = NULL;
 	X509_REQ			*certreq = NULL;
 	json_t				*jresp;
+	json_t				*jmsg = NULL;
+	json_error_t			 error;
 	digital_id_t			*nva_id = NULL;
 	struct evkeyvalq		 headers = TAILQ_HEAD_INITIALIZER(headers);
 	struct evhttp_uri		 *uri = NULL;
@@ -373,6 +364,8 @@ ndb_provisioning(const char *provlink, const char *network_name)
 	char				*pvkey_pem = NULL;
 	const char			*provsrv_addr;
 	const char			*version;
+	const char			*cacert;
+	const char			*cert;
 
 	nva_id = pki_digital_id("",  "", "", "", "contact@dynvpn.com", "www.dynvpn.com");
 
@@ -418,7 +411,7 @@ ndb_provisioning(const char *provlink, const char *network_name)
 
 	/* XXX cleanup needed */
 
-	CURL			*curl;
+	CURL			*curl = NULL;
 	CURLcode	 	 res;
 	struct curl_slist	*req_headers = NULL;
 	char			 url[256];
@@ -454,10 +447,25 @@ ndb_provisioning(const char *provlink, const char *network_name)
 			fprintf(stderr, "curl_easy_perform() failed: %s\n",
 			    curl_easy_strerror(res));
 
-		/* always cleanup */
-		curl_easy_cleanup(curl);
+		/* Parse the json output */
+		if ((jmsg = json_loadb((const char *)netcf->buf, netcf->buf_total, 0, &error)) == NULL) {
+			fprintf(stdout, "%s: json_loadb - %s\n", __func__, error.text);
+			goto out;
+		}
+
+		if (json_unpack(jmsg, "{s:s, s:s}",
+		    "cert", &cert, "cacert", &cacert) < 0) {
+			fprintf(stdout, "%s: json_unpack\n", __func__);
+			goto out;
+		}
+
+		ndb_network_add(netcf, cert, cacert);
 	}
+
+out:
+	curl_easy_cleanup(curl);
 	curl_global_cleanup();
+	json_decref(jmsg);
 
 	if (uri != NULL)
 		evhttp_uri_free(uri);

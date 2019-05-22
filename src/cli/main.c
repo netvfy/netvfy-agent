@@ -146,6 +146,8 @@ main(int argc, char *argv[])
 
 		if (ndb_provisioning(provcode, new_name) < 0)
 			usage();
+		else
+			goto out;
 
 	} else if (network_name) {
 		if (control_init(network_name) == -1) {
@@ -157,6 +159,7 @@ main(int argc, char *argv[])
 	event_base_dispatch(ev_base);
 
 	printf("agent shutdown...\n");
+out:
 	ndb_fini();
 	control_fini();
 	switch_fini();
