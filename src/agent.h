@@ -37,6 +37,8 @@ struct network {
 	char			*cert;
 	char			*pvkey;
 	char			*cacert;
+	uint8_t			 buf[5000];
+	unsigned long		 buf_total;
 };
 
 void		 switch_fini(void);
