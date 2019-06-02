@@ -237,7 +237,7 @@ ndb_network_remove(const char *network_name)
 	struct network	*n;
 
 	if ((n = ndb_network(network_name)) == NULL) {
-		log_warnx("%s: ndb_network", __func__);
+		fprintf(stderr, "%s: unable to find network name '%s'\n", __func__, network_name);
 		goto err;
 	}
 
