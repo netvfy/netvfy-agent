@@ -367,6 +367,16 @@ ndb_provisioning(const char *provlink, const char *network_name)
 	const char			*cacert;
 	const char			*cert;
 
+	if (strcmp(provlink, "") == 0) {
+		fprintf(stderr, "%s: provisioning key must be defined \n", __func__);
+		return (-1);
+	}
+
+	if (strcmp(network_name, "") == 0) {
+		fprintf(stderr, "%s: network name must be defined \n", __func__);
+		return (-1);
+	}
+
 	nva_id = pki_digital_id("",  "", "", "", "contact@dynvpn.com", "www.dynvpn.com");
 
 	/* generate RSA public and private keys */
