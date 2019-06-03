@@ -29,6 +29,8 @@ AccountSettings::AccountSettings(MainDialog *dialog)
 
 	connect(ui.connectButton, SIGNAL(clicked()), this, SLOT(slotConnWaiting()));
 	connect(ui.connectButton, SIGNAL(clicked()), dialog, SLOT(slotFireConnection()));
+	connect(ui.addButton, SIGNAL(clicked()), dialog, SLOT(slotAddNetwork()));
+	connect(ui.deleteButton, SIGNAL(clicked()), dialog, SLOT(slotDeleteNetwork()));
 
 	movie = new QMovie(":/rc/loader.gif");
 	this->ui.LoadLabel->setMovie(movie);

@@ -46,6 +46,8 @@ class MainDialog: public QDialog
 	public slots:
 		void slotExit();
 		void slotToggleAutoConnect(int);
+		void slotAddNetwork();
+		void slotDeleteNetwork();
 		void slotFireConnection();
 		void slotResetAccount();
 		void trayIconClicked(QSystemTrayIcon::ActivationReason);
