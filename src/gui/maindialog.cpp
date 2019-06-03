@@ -82,6 +82,14 @@ void MainDialog::slotFireConnection(void)
 {
 }
 
+void MainDialog::slotAddNetwork(void)
+{
+}
+
+void MainDialog::slotDeleteNetwork(void)
+{
+}
+
 void MainDialog::slotResetAccount()
 {
 	QMessageBox::StandardButton reply;
