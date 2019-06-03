@@ -406,17 +406,22 @@ ndb_provisioning(const char *provlink, const char *network_name)
 	json_object_set_new(jresp, "provlink", json_string(provlink));
 	resp = json_dumps(jresp, 0);
 
-	if ((uri = evhttp_uri_parse(provlink)) == NULL)
-		return (-1);
-
-	if ((evhttp_parse_query_str(evhttp_uri_get_query(uri), &headers)) < 0)
-		return (-1);
-
-	if (((version = evhttp_find_header(&headers, "v")) == NULL) ||
-	    ((provsrv_addr = evhttp_find_header(&headers, "a")) == NULL) ) {
+	if ((uri = evhttp_uri_parse(provlink)) == NULL) {
+		fprintf(stderr, "%s: invalid provisioning key \n", __func__);
 		return (-1);
 	}
 
+	if ((evhttp_parse_query_str(evhttp_uri_get_query(uri), &headers)) < 0) {
+		fprintf(stderr, "%s: invalid provisioning key \n", __func__);
+		return (-1);
+	}
+
+	if (((version = evhttp_find_header(&headers, "v")) == NULL) ||
+	    ((provsrv_addr = evhttp_find_header(&headers, "a")) == NULL) ) {
+		fprintf(stderr, "%s: invalid provisioning key \n", __func__); 
+		return (-1);
+	}
+	
 	netcf->api_srv = strdup(provsrv_addr);
 
 	/* XXX cleanup needed */
@@ -432,6 +437,9 @@ ndb_provisioning(const char *provlink, const char *network_name)
 	curl_global_init(CURL_GLOBAL_ALL);
 
 	/* get a curl handle */
+
+	// TODO(sneha): have a more reasonable timeout. Occasionally this command will hang a very long time
+	// with an incorrect provisioning key. 
 	curl = curl_easy_init();
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -486,5 +494,6 @@ out:
 	free(certreq_pem);
 	return (0);
 }
+
 
 RB_GENERATE_STATIC(network_tree, network, entry, network_cmp);
