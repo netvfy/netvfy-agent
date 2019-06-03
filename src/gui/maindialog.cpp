@@ -17,6 +17,7 @@
 #include <QFile>
 #include <QLabel>
 #include <QDebug>
+#include <QInputDialog>
 
 #include "maindialog.h"
 #include "accountsettings.h"
@@ -84,6 +85,20 @@ void MainDialog::slotFireConnection(void)
 
 void MainDialog::slotAddNetwork(void)
 {
+	bool ok;
+
+	QString text = QInputDialog::getText(this, NULL,
+		tr("Your provisioning key:"), QLineEdit::Normal, NULL, &ok);
+
+	// XXX Parse and verify the provisioning key
+
+	// XXX Contact the REST/API service
+
+	// XXX If provisioning successful, add a new entry
+	if (ok) {
+		text = QInputDialog::getText(this, NULL,
+			tr("Choose a network name:"), QLineEdit::Normal, NULL, &ok);
+	}
 }
 
 void MainDialog::slotDeleteNetwork(void)
