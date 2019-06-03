@@ -29,7 +29,6 @@
 class AccountSettings;
 class LogSettings;
 class GeneralSettings;
-class WizardDialog;
 
 class MainDialog: public QDialog
 {
@@ -46,8 +45,6 @@ class MainDialog: public QDialog
 
 	public slots:
 		void slotExit();
-		void slotWizardCancel();
-		void slotWizardNext();
 		void slotToggleAutoConnect(int);
 		void slotFireConnection();
 		void slotResetAccount();
@@ -59,7 +56,6 @@ class MainDialog: public QDialog
 		AccountSettings *accountSettings;
 		LogSettings *logSettings;
 		GeneralSettings *generalSettings;
-		WizardDialog *wizardDialog;
 
 		QString ProvKey;
 		QSystemTrayIcon *trayIcon;

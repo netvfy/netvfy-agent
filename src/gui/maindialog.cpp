@@ -22,18 +22,12 @@
 #include "accountsettings.h"
 #include "logsettings.h"
 #include "generalsettings.h"
-#include "wizarddialog.h"
 
 /* Hack to access this from static method */
 static void *obj_this;
 
 MainDialog::MainDialog()
 {
-/*
-	this->wizardDialog = new WizardDialog(this);
-	this->wizardDialog->show();
-	this->wizardDialog->raise();
-*/
 	NowRun();
 	this->raise();
 }
@@ -78,18 +72,6 @@ void MainDialog::NowRun()
 	createTrayIcon();
 	setTrayIcon();
 	trayIcon->show();	
-}
-
-void MainDialog::slotWizardCancel()
-{
-	QApplication::quit();
-}
-
-void MainDialog::slotWizardNext()
-{
-	this->ProvKey = this->wizardDialog->ProvKey;
-	this->NowRun();
-	delete this->wizardDialog;
 }
 
 void MainDialog::slotToggleAutoConnect(int checked)
