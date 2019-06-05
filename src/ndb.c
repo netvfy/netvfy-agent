@@ -367,6 +367,17 @@ ndb_provisioning(const char *provlink, const char *network_name)
 	const char			*cacert;
 	const char			*cert;
 
+	if (strcmp(provlink, "") == 0) {
+		fprintf(stderr, "%s: provisioning key must be defined\n", __func__);
+		return (-1);
+	}
+
+	if (strcmp(network_name, "") == 0) {
+		fprintf(stderr, "%s: network name must be defined\n", __func__);
+		return (-1);
+	}
+
+	//TODO(sneha): when should this be changed for pki
 	nva_id = pki_digital_id("",  "", "", "", "contact@dynvpn.com", "www.dynvpn.com");
 
 	/* generate RSA public and private keys */
@@ -396,14 +407,19 @@ ndb_provisioning(const char *provlink, const char *network_name)
 	json_object_set_new(jresp, "provlink", json_string(provlink));
 	resp = json_dumps(jresp, 0);
 
-	if ((uri = evhttp_uri_parse(provlink)) == NULL)
+	if ((uri = evhttp_uri_parse(provlink)) == NULL) {
+		fprintf(stderr, "%s: invalid provisioning key\n", __func__);
 		return (-1);
+	}
 
-	if ((evhttp_parse_query_str(evhttp_uri_get_query(uri), &headers)) < 0)
+	if ((evhttp_parse_query_str(evhttp_uri_get_query(uri), &headers)) < 0) {
+		fprintf(stderr, "%s: invalid provisioning key\n", __func__);
 		return (-1);
+	}
 
 	if (((version = evhttp_find_header(&headers, "v")) == NULL) ||
 	    ((provsrv_addr = evhttp_find_header(&headers, "a")) == NULL) ) {
+		fprintf(stderr, "%s: invalid provisioning key\n", __func__);
 		return (-1);
 	}
 
