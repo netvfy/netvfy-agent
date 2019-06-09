@@ -24,6 +24,8 @@
 #include "logsettings.h"
 #include "generalsettings.h"
 
+#include "../agent.h"
+
 /* Hack to access this from static method */
 static void *obj_this;
 
@@ -85,20 +87,19 @@ void MainDialog::slotFireConnection(void)
 
 void MainDialog::slotAddNetwork(void)
 {
-	bool ok;
+	QString	provcode;
+	QString	netname;
+	bool	ok;
 
-	QString text = QInputDialog::getText(this, NULL,
+	provcode = QInputDialog::getText(this, NULL,
 		tr("Your provisioning key:"), QLineEdit::Normal, NULL, &ok);
 
-	// XXX Parse and verify the provisioning key
-
-	// XXX Contact the REST/API service
-
-	// XXX If provisioning successful, add a new entry
 	if (ok) {
-		text = QInputDialog::getText(this, NULL,
+		netname = QInputDialog::getText(this, NULL,
 			tr("Choose a network name:"), QLineEdit::Normal, NULL, &ok);
 	}
+
+	ndb_provisioning(provcode.toStdString().c_str(), netname.toStdString().c_str());
 }
 
 void MainDialog::slotDeleteNetwork(void)
