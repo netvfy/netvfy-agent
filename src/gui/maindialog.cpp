@@ -74,15 +74,23 @@ void MainDialog::NowRun()
 
 	createTrayIcon();
 	setTrayIcon();
-	trayIcon->show();	
+	trayIcon->show();
+
+	slotResetNetworkList();
 }
 
 void MainDialog::slotToggleAutoConnect(int checked)
 {
 }
 
+void MainDialog::slotResetNetworkList(void)
+{
+	ndb_networks(this->onListNetworks);
+}
+
 void MainDialog::slotFireConnection(void)
 {
+//	control_init("network_name");
 }
 
 void MainDialog::slotAddNetwork(void)
@@ -148,6 +156,13 @@ void MainDialog::onDisconnect()
 	MainDialog *_this = static_cast<MainDialog*>(obj_this);	
 	QMetaObject::invokeMethod(_this->accountSettings, "slotConnWaiting",
 	Qt::QueuedConnection);
+}
+
+void MainDialog::onListNetworks(const char *network)
+{
+	MainDialog *_this = static_cast<MainDialog*>(obj_this);
+	QMetaObject::invokeMethod(_this->accountSettings, "slotListNetworks",
+	Qt::QueuedConnection, Q_ARG(QString, QString::fromStdString(network)));
 }
 
 void MainDialog::createTrayIcon()

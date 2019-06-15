@@ -177,16 +177,23 @@ ndb_fini()
 }
 
 void
-ndb_networks(void)
+ndb_networks(void(*fn)(const char *))
 {
 	struct network	*n;
-	printf("Networks:\n");
+
+	if (fn != NULL)
+		printf("Networks:\n");
+
 	RB_FOREACH(n, network_tree, &networks) {
+		if (fn != NULL) {
+			fn(n->name);
+		} else {
 #ifdef _WIN32
-		printf("\t[%u] \"%s\"\n", n->idx, n->name);
+			printf("\t[%u] \"%s\"\n", n->idx, n->name);
 #else
-		printf("\t[%zu] \"%s\"\n", n->idx, n->name);
+			printf("\t[%zu] \"%s\"\n", n->idx, n->name);
 #endif
+		}
 	}
 }
 
