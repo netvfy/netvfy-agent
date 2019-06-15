@@ -42,12 +42,14 @@ class MainDialog: public QDialog
 		static void onLog(const char *);
 		static void onConnect(const char *ip);
 		static void onDisconnect();
+		static void onListNetworks(const char *network);
 
 	public slots:
 		void slotExit();
 		void slotToggleAutoConnect(int);
 		void slotAddNetwork();
 		void slotDeleteNetwork();
+		void slotResetNetworkList();
 		void slotFireConnection();
 		void slotResetAccount();
 		void trayIconClicked(QSystemTrayIcon::ActivationReason);

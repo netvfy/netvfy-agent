@@ -34,6 +34,7 @@ class AccountSettings: public QDialog
 	public slots:
 		void slotOnConnect(QString ip);
 		void slotConnWaiting();
+		void slotListNetworks(QString network);
 
 	private:
 		Ui::AccountSettings ui;

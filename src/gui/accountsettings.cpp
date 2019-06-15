@@ -41,6 +41,11 @@ AccountSettings::~AccountSettings()
 	delete movie;
 }
 
+void AccountSettings::slotListNetworks(QString network)
+{
+        this->ui.listNetwork->addItem(network);
+}
+
 void AccountSettings::slotOnConnect(QString ip)
 {
 	this->ui.connectionInfoLabel->setText("<html><head/><body><p><span style=\" font-size:14pt; font-weight:600;\">Now connected</span></p></body></html>");
