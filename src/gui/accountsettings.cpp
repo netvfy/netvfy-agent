@@ -19,6 +19,8 @@
 
 #include "accountsettings.h"
 
+#include "../agent.h"
+
 AccountSettings::AccountSettings(MainDialog *dialog)
 {
 	ui.setupUi(this);
@@ -28,7 +30,7 @@ AccountSettings::AccountSettings(MainDialog *dialog)
 	this->ui.YourIPLabel->setVisible(false);
 
 	connect(ui.connectButton, SIGNAL(clicked()), this, SLOT(slotConnWaiting()));
-	connect(ui.connectButton, SIGNAL(clicked()), dialog, SLOT(slotFireConnection()));
+	connect(ui.connectButton, SIGNAL(clicked()), this, SLOT(slotFireConnection()));
 	connect(ui.addButton, SIGNAL(clicked()), dialog, SLOT(slotAddNetwork()));
 	connect(ui.deleteButton, SIGNAL(clicked()), dialog, SLOT(slotDeleteNetwork()));
 
@@ -39,6 +41,12 @@ AccountSettings::AccountSettings(MainDialog *dialog)
 AccountSettings::~AccountSettings()
 {
 	delete movie;
+}
+
+void AccountSettings::slotFireConnection(void)
+{
+	const QString &s = this->ui.listNetwork->currentItem()->text();
+	control_init(s.toStdString().c_str());
 }
 
 void AccountSettings::slotListNetworks(QString network)
