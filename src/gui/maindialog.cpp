@@ -88,11 +88,6 @@ void MainDialog::slotResetNetworkList(void)
 	ndb_networks(this->onListNetworks);
 }
 
-void MainDialog::slotFireConnection(void)
-{
-//	control_init("network_name");
-}
-
 void MainDialog::slotAddNetwork(void)
 {
 	QString	provcode;

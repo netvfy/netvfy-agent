@@ -50,7 +50,6 @@ class MainDialog: public QDialog
 		void slotAddNetwork();
 		void slotDeleteNetwork();
 		void slotResetNetworkList();
-		void slotFireConnection();
 		void slotResetAccount();
 		void trayIconClicked(QSystemTrayIcon::ActivationReason);
 

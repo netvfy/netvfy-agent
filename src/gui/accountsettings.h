@@ -32,6 +32,7 @@ class AccountSettings: public QDialog
 		virtual ~AccountSettings();
 
 	public slots:
+		void slotFireConnection();
 		void slotOnConnect(QString ip);
 		void slotConnWaiting();
 		void slotListNetworks(QString network);
