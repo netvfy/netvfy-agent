@@ -181,7 +181,7 @@ ndb_networks(void(*fn)(const char *))
 {
 	struct network	*n;
 
-	if (fn != NULL)
+	if (fn == NULL)
 		printf("Networks:\n");
 
 	RB_FOREACH(n, network_tree, &networks) {
