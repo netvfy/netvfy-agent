@@ -36,7 +36,7 @@ usage(void)
 	extern char	*__progname;
 	fprintf(stderr, "usage: %s\n"
 	    "\t-k\tConfigure new network [provisioning key]\n"
-		"\t-n\tName network [should be used with the -k flag]\n"
+	    "\t-n\tName network [should be used with the -k flag]\n"
 	    "\t-l\tList networks\n"
 	    "\t-c\tConnect [network name]\n"
 	    "\t-d\tDelete [network name]\n"
