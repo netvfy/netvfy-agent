@@ -36,6 +36,7 @@ usage(void)
 	extern char	*__progname;
 	fprintf(stderr, "usage: %s\n"
 	    "\t-k\tConfigure new network [provisioning key]\n"
+	    "\t-n\tName network [should be used with the -k flag]\n"
 	    "\t-l\tList networks\n"
 	    "\t-c\tConnect [network name]\n"
 	    "\t-d\tDelete [network name]\n"
@@ -64,9 +65,12 @@ main(int argc, char *argv[])
 	char		*network_name = NULL;
 	char		 new_name[64];
 
-	while ((ch = getopt(argc, argv, "hk:lc:d:")) != -1) {
+	while ((ch = getopt(argc, argv, "hk:n:lc:d:")) != -1) {
 
 		switch (ch) {
+		case 'n':
+			network_name = optarg;
+			break;
 		case 'k':
 			provcode = optarg;
 			break;
@@ -136,15 +140,19 @@ main(int argc, char *argv[])
 	event_add(ev_sigterm, NULL);
 
 	char *p;
-	if (provcode != NULL) {
-		printf("Give this network the name you want: ");
-		if (fgets(new_name, sizeof(new_name)-1, stdin) == NULL)
-			errx(0, "fgets");
+	if (provcode != NULL) {	
+		if (network_name == NULL) {
+			printf("Give this network the name you want: ");
+			if (fgets(new_name, sizeof(new_name)-1, stdin) == NULL)
+				errx(0, "fgets");
+				
+			if ((p = strchr(new_name, '\n')) != NULL)
+				*p = '\0';
 
-		if ((p = strchr(new_name, '\n')) != NULL)
-			*p = '\0';
+			network_name = new_name;
+		} 
 
-		if (ndb_provisioning(provcode, new_name) < 0)
+		if (ndb_provisioning(provcode, network_name) < 0)
 			usage();
 		else
 			goto out;
