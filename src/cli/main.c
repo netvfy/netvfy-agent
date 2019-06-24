@@ -36,8 +36,8 @@ usage(void)
 	extern char	*__progname;
 	fprintf(stderr, "usage: %s\n"
 	    "\t-k\tConfigure new network [provisioning key]\n"
+		"\t-n\tName network [should be used with the -k flag]\n"
 	    "\t-l\tList networks\n"
-		"\t-L\tName network [should be used with the -k flag]\n"
 	    "\t-c\tConnect [network name]\n"
 	    "\t-d\tDelete [network name]\n"
 	    "\t-h\thelp\n", __progname);
@@ -65,10 +65,10 @@ main(int argc, char *argv[])
 	char		*network_name = NULL;
 	char		 new_name[64];
 
-	while ((ch = getopt(argc, argv, "hk:L:lc:d:")) != -1) {
+	while ((ch = getopt(argc, argv, "hk:n:lc:d:")) != -1) {
 
 		switch (ch) {
-		case 'L':
+		case 'n':
 			network_name = optarg;
 			break;
 		case 'k':
