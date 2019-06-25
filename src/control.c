@@ -729,8 +729,6 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 
 	if (events & BEV_EVENT_CONNECTED) {
 
-		printf("connected.\n");
-
 		event_del(p->vlink->ev_reconnect);
 
 		tv.tv_sec = 5;
@@ -767,10 +765,6 @@ int
 control_init(const char *network_name)
 {
 	struct network		*netcf = NULL;
-
-	SSL_library_init();
-	SSL_load_error_strings();
-	OpenSSL_add_all_algorithms();
 
 	log_init(2, LOG_DAEMON);
 

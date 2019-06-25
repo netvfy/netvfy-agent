@@ -16,10 +16,9 @@
 
 #include <QMovie>
 #include <QPixmap>
+#include <QThread>
 
 #include "accountsettings.h"
-
-#include "../agent.h"
 
 AccountSettings::AccountSettings(MainDialog *dialog)
 {
@@ -43,10 +42,23 @@ AccountSettings::~AccountSettings()
 	delete movie;
 }
 
+void Worker::run(void)
+{
+	agent_start(this->networkName.toStdString().c_str());
+}
+
 void AccountSettings::slotFireConnection(void)
 {
-	const QString &s = this->ui.listNetwork->currentItem()->text();
-	control_init(s.toStdString().c_str());
+//	const QString &s = this->ui.listNetwork->currentItem()->text();
+
+
+	Worker	*worker = new Worker();
+
+	worker->networkName = this->ui.listNetwork->currentItem()->text();
+
+	connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+
+	worker->start();
 }
 
 void AccountSettings::slotListNetworks(QString network)
@@ -86,4 +98,3 @@ void AccountSettings::slotConnWaiting()
 	this->ui.StatusPix->setVisible(false);
 
 }
-

@@ -19,9 +19,23 @@
 
 #include <QDialog>
 #include <QString>
+#include <QThread>
 
 #include "maindialog.h"
 #include "ui_accountsettings.h"
+
+#include "../agent.h"
+
+class Worker : public QThread
+{
+	Q_OBJECT
+
+public:
+	QString networkName;
+
+protected:
+	void run();
+};
 
 class AccountSettings: public QDialog
 {

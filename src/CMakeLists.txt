@@ -33,6 +33,7 @@ else()
 endif()
 
 set(nvagent_sources
+	agent.c
 	control.c
 	ndb.c
 	switch.c

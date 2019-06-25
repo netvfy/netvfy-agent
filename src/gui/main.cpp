@@ -28,8 +28,6 @@
 
 #include "../agent.h"
 
-struct event_base	*ev_base = NULL;
-
 int main(int argc, char *argv[])
 {
 	#if __APPLE__
