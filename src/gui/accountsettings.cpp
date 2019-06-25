@@ -20,6 +20,8 @@
 
 #include "accountsettings.h"
 
+#include "../agent.h"
+
 AccountSettings::AccountSettings(MainDialog *dialog)
 {
 	ui.setupUi(this);
