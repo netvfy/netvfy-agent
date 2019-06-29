@@ -114,8 +114,11 @@ main(int argc, char *argv[])
 			goto out;
 
 	} else if (network_name) {
-		agent_start(network_name);
+		agent_thread_start(network_name);
 	}
+
+	while(1)
+		sleep(10);
 
 	printf("agent shutdown...\n");
 out:

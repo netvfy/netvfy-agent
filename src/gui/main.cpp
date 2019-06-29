@@ -24,8 +24,6 @@
 
 #include "maindialog.h"
 
-#include <event2/event.h>
-
 #include "../agent.h"
 
 int main(int argc, char *argv[])
@@ -39,9 +37,8 @@ int main(int argc, char *argv[])
 	#endif
 
 	ndb_init();
-	//XXX spawned in another thread
-	//ev_base = event_base_new();
-	//event_base_dispatch(ev_base);
+
+	agent_thread_start("test1");
 
 	QApplication app(argc, argv);
 	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);

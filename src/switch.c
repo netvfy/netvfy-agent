@@ -51,6 +51,7 @@
 #include <log.h>
 #include <tapcfg.h>
 
+#include "ev.h"
 #include "agent.h"
 
 #define IP4_HDRLEN 20
@@ -120,7 +121,6 @@ struct packets {
 	TAILQ_ENTRY(packets)	 entries;
 };
 
-struct event_base		*ev_base;
 static struct event		*ev_iface = NULL;
 static struct network		*netcf;
 static struct vlink		*vlink = NULL;

@@ -77,7 +77,7 @@ if (WITH_GUI)
 		set_target_properties(netvfy-agent PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/gui/Info.plist)
 	endif()
 
-	target_link_libraries(netvfy-agent Qt5::Widgets Qt5::Network ${QT5_LIBRARIES})
+	target_link_libraries(netvfy-agent Qt5::Widgets Qt5::Network ${QT5_LIBRARIES} pthread)
 
 else()
 	set(cli_sources
@@ -97,6 +97,8 @@ if (APPLE)
 		event_core
 		event_extra
 		event_openssl
+		pthread
+		event_pthreads
 	)
 elseif (WIN32)
 

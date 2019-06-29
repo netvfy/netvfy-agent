@@ -53,7 +53,7 @@ void AccountSettings::slotFireConnection(void)
 {
 //	const QString &s = this->ui.listNetwork->currentItem()->text();
 
-
+/*
 	Worker	*worker = new Worker();
 
 	worker->networkName = this->ui.listNetwork->currentItem()->text();
@@ -61,6 +61,10 @@ void AccountSettings::slotFireConnection(void)
 	connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
 
 	worker->start();
+*/
+	const QString &s = this->ui.listNetwork->currentItem()->text();
+	printf("name>> %s\n", s.toStdString().c_str());
+	agent_thread_start(s.toStdString().c_str());
 }
 
 void AccountSettings::slotListNetworks(QString network)

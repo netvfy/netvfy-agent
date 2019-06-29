@@ -19,8 +19,6 @@
 
 #include <sys/tree.h>
 
-#include <event2/event.h>
-
 #include <tapcfg.h>
 
 #include <pki.h>
@@ -54,11 +52,14 @@ int		 ndb_provisioning(const char *, const char *);
 int		 control_init(const char *);
 void		 control_fini(void);
 
-int		 agent_init(void);
+void		 agent_init(void);
 void		 agent_fini(void);
 void		 agent_start(const char *);
+#ifdef WITH_GUI
+void		 agent_thread_fini(void);
+void		 agent_thread_start(const char*);
+#endif
 
-extern struct event_base 	*ev_base;
 
 #ifdef __cplusplus
 }

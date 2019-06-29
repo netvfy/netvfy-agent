@@ -35,6 +35,7 @@
 
 #include <curl/curl.h>
 
+#include <event2/event.h>
 #include <event2/buffer.h>
 #include <event2/bufferevent.h>
 #include <event2/bufferevent_ssl.h>
@@ -49,6 +50,7 @@
 #include <tapcfg.h>
 #include <sysname.h>
 
+#include "ev.h"
 #include "agent.h"
 
 struct vlink {
@@ -728,6 +730,8 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 	unsigned long	 e;
 
 	if (events & BEV_EVENT_CONNECTED) {
+
+		printf("connected.\n");
 
 		event_del(p->vlink->ev_reconnect);
 

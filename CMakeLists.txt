@@ -18,10 +18,12 @@ set(HARDENING OPTIONS_COMMON
     -D_FORTIFY_SOURCE=2
 )
 
+set(SET_WITH_GUI -DWITH_GUI)
+
 if (WIN32)
-    set(compiler_options "${HARDENING_OPTIONS_COMMON} -fPIE -O1")
+    set(compiler_options "${HARDENING_OPTIONS_COMMON} -fPIE -O1 ${SET_WITH_GUI}")
 elseif(UNIX)
-    set(compiler_options "${HARDENING_OPTIONS_COMMON} -O1")
+    set(compiler_options "${HARDENING_OPTIONS_COMMON} -O1 ${SET_WITH_GUI}")
 endif()
 
 if(COMMAND cmake_policy)

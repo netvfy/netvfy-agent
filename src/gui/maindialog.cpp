@@ -24,6 +24,8 @@
 #include "logsettings.h"
 #include "generalsettings.h"
 
+#include <unistd.h>
+
 #include "../agent.h"
 
 /* Hack to access this from static method */
