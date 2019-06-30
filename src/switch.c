@@ -572,6 +572,11 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 		}
 
 	} else if (events & (BEV_EVENT_ERROR | BEV_EVENT_TIMEOUT | BEV_EVENT_EOF)) {
+
+		printf(">>timeout: %d\n", events & BEV_EVENT_TIMEOUT);
+		printf(">>EOF: %d\n", events & BEV_EVENT_EOF);
+		printf(">>ERR: %d> %s\n", events & BEV_EVENT_ERROR, evutil_socket_error_to_string(EVUTIL_SOCKET_ERROR()));
+
 		while ((e = bufferevent_get_openssl_error(bev)) > 0) {
 			log_warnx("%s: TLS error: %s", __func__,
 			    ERR_reason_error_string(e));

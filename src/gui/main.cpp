@@ -38,8 +38,6 @@ int main(int argc, char *argv[])
 
 	ndb_init();
 
-	agent_thread_start("test1");
-
 	QApplication app(argc, argv);
 	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 	app.setStyle("fusion");
