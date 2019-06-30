@@ -15,20 +15,13 @@
  */
 
 #include <err.h>
-#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#include <event2/event.h>
-#include <event2/thread.h>
-
 #include "../agent.h"
 
 static void		 usage(void);
-static void		 sighandler(int, short, void *);
-
-struct event_base	*ev_base = NULL;
 
 void
 usage(void)
@@ -44,20 +37,9 @@ usage(void)
 	exit(1);
 }
 
-void
-sighandler(int signal, short events, void *arg)
-{
-	(void)signal;
-	(void)events;
-
-	event_base_loopbreak(arg);
-}
-
 int
 main(int argc, char *argv[])
 {
-	struct event	*ev_sigint;
-	struct event	*ev_sigterm;
 	int		 ch;
 	int		 list_networks = 0;
 	int		 del_network = 0;
@@ -98,20 +80,13 @@ main(int argc, char *argv[])
         WSAStartup(wVersionRequested, &wsaData);
 #endif
 
-#ifndef _WIN32
-	if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
-		fprintf(stderr, "%s: signal", __func__);
-		exit(-1);
-	}
-#endif
-
 	if (ndb_init() < 0) {
 		fprintf(stderr, "%s: db_init\n", __func__);
 		exit(-1);
 	}
 
 	if (list_networks) {
-		ndb_networks();
+		ndb_networks(NULL);
 		exit(0);
 	}
 
@@ -119,25 +94,6 @@ main(int argc, char *argv[])
 		ndb_network_remove(network_name);
 		exit(0);
 	}
-
-	if ((ev_base = event_base_new()) == NULL) {
-		fprintf(stderr, "%s: event_init\n", __func__);
-		exit(-1);
-	}
-
-	if ((ev_sigint = evsignal_new(ev_base, SIGINT, sighandler, ev_base))
-	    == NULL) {
-		fprintf(stderr, "%s: evsignal_new\n", __func__); 
-		exit(-1);
-	}
-	event_add(ev_sigint, NULL);
-
-	if ((ev_sigterm = evsignal_new(ev_base, SIGTERM, sighandler, ev_base))
-	    == NULL) {
-		fprintf(stderr, "%s: evsignal_new\n", __func__);
-		exit(-1);
-	}
-	event_add(ev_sigterm, NULL);
 
 	char *p;
 	if (provcode != NULL) {	
@@ -157,23 +113,17 @@ main(int argc, char *argv[])
 		else
 			goto out;
 
-	} else if (network_name) {
-		if (control_init(network_name) == -1) {
-			fprintf(stderr, "%s: control_init\n", __func__);
-			exit(-1);
-		}
-	}
-
-	event_base_dispatch(ev_base);
+	} else if (network_name)
+		agent_start(network_name);
+	else
+		usage();
 
 	printf("agent shutdown...\n");
 out:
 	ndb_fini();
 	control_fini();
 	switch_fini();
-	event_free(ev_sigint);
-	event_free(ev_sigterm);
-	event_base_free(ev_base);
+	agent_fini();
 
 	return (0);
 }

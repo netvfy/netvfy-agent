@@ -18,10 +18,17 @@ set(HARDENING OPTIONS_COMMON
     -D_FORTIFY_SOURCE=2
 )
 
+if (WITH_GUI)
+	set(CPACK_PACKAGE_NAME "netvfy-agent-gui")
+	set(USE_THREAD "-DUSE_THREAD")
+else()
+	set(CPACK_PACKAGE_NAME "netvfy-agent-cli")
+endif()
+
 if (WIN32)
-    set(compiler_options "${HARDENING_OPTIONS_COMMON} -fPIE -O1")
+    set(compiler_options "${HARDENING_OPTIONS_COMMON} -fPIE -O1 ${USE_THREAD}")
 elseif(UNIX)
-    set(compiler_options "${HARDENING_OPTIONS_COMMON} -O1")
+    set(compiler_options "${HARDENING_OPTIONS_COMMON} -O1 ${USE_THREAD}")
 endif()
 
 if(COMMAND cmake_policy)
@@ -56,12 +63,6 @@ else()
 	set(CPACK_DEBIAN_PACKAGE_SECTION "net")
 	set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Netvfy core team <help@netvfy.com>")
 	set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA ${CMAKE_CURRENT_SOURCE_DIR}/postinst; ${CMAKE_CURRENT_SOURCE_DIR}/postrm)
-endif()
-
-if (WITH_GUI)
-	set(CPACK_PACKAGE_NAME "netvfy-agent-gui")
-else()
-	set(CPACK_PACKAGE_NAME "netvfy-agent-cli")
 endif()
 
 include(CPack)

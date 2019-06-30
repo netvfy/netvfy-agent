@@ -17,23 +17,20 @@
 #include <QFile>
 #include <QLabel>
 #include <QDebug>
+#include <QInputDialog>
 
 #include "maindialog.h"
 #include "accountsettings.h"
 #include "logsettings.h"
 #include "generalsettings.h"
-#include "wizarddialog.h"
+
+#include "../agent.h"
 
 /* Hack to access this from static method */
 static void *obj_this;
 
 MainDialog::MainDialog()
 {
-/*
-	this->wizardDialog = new WizardDialog(this);
-	this->wizardDialog->show();
-	this->wizardDialog->raise();
-*/
 	NowRun();
 	this->raise();
 }
@@ -77,26 +74,38 @@ void MainDialog::NowRun()
 
 	createTrayIcon();
 	setTrayIcon();
-	trayIcon->show();	
-}
+	trayIcon->show();
 
-void MainDialog::slotWizardCancel()
-{
-	QApplication::quit();
-}
-
-void MainDialog::slotWizardNext()
-{
-	this->ProvKey = this->wizardDialog->ProvKey;
-	this->NowRun();
-	delete this->wizardDialog;
+	slotResetNetworkList();
 }
 
 void MainDialog::slotToggleAutoConnect(int checked)
 {
 }
 
-void MainDialog::slotFireConnection(void)
+void MainDialog::slotResetNetworkList(void)
+{
+	ndb_networks(this->onListNetworks);
+}
+
+void MainDialog::slotAddNetwork(void)
+{
+	QString	provcode;
+	QString	netname;
+	bool	ok;
+
+	provcode = QInputDialog::getText(this, NULL,
+		tr("Your provisioning key:"), QLineEdit::Normal, NULL, &ok);
+
+	if (ok) {
+		netname = QInputDialog::getText(this, NULL,
+			tr("Choose a network name:"), QLineEdit::Normal, NULL, &ok);
+	}
+
+	ndb_provisioning(provcode.toStdString().c_str(), netname.toStdString().c_str());
+}
+
+void MainDialog::slotDeleteNetwork(void)
 {
 }
 
@@ -142,6 +151,13 @@ void MainDialog::onDisconnect()
 	MainDialog *_this = static_cast<MainDialog*>(obj_this);	
 	QMetaObject::invokeMethod(_this->accountSettings, "slotConnWaiting",
 	Qt::QueuedConnection);
+}
+
+void MainDialog::onListNetworks(const char *network)
+{
+	MainDialog *_this = static_cast<MainDialog*>(obj_this);
+	QMetaObject::invokeMethod(_this->accountSettings, "slotListNetworks",
+	Qt::QueuedConnection, Q_ARG(QString, QString::fromStdString(network)));
 }
 
 void MainDialog::createTrayIcon()
