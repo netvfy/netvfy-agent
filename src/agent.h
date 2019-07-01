@@ -19,8 +19,6 @@
 
 #include <sys/tree.h>
 
-#include <event2/event.h>
-
 #include <tapcfg.h>
 
 #include <pki.h>
@@ -46,13 +44,21 @@ int		 switch_init(tapcfg_t *, int, const char *, const char *, const char *, con
 
 int		 ndb_init(void);
 void		 ndb_fini(void);
-void		 ndb_networks(void);
+void		 ndb_networks(void(*fn)(const char *));
 struct network	*ndb_network(const char *);
 int		 ndb_network_remove(const char *);
 int		 ndb_provisioning(const char *, const char *);
 
 int		 control_init(const char *);
 void		 control_fini(void);
+
+void		 agent_init(void);
+void		 agent_fini(void);
+void		 agent_start(const char *);
+#ifdef USE_THREAD
+void		 agent_thread_fini(void);
+void		 agent_thread_start(const char*);
+#endif
 
 extern struct event_base 	*ev_base;
 

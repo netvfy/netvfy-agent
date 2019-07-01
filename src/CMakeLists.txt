@@ -33,6 +33,7 @@ else()
 endif()
 
 set(nvagent_sources
+	agent.c
 	control.c
 	ndb.c
 	switch.c
@@ -50,15 +51,13 @@ if (WITH_GUI)
 		gui/maindialog.cpp
 		gui/accountsettings.cpp
 		gui/logsettings.cpp
-		gui/generalsettings.cpp
-		gui/wizarddialog.cpp)
+		gui/generalsettings.cpp)
 
 	set(gui_headers
 		gui/maindialog.h
 		gui/accountsettings.h
 		gui/logsettings.h
-		gui/generalsettings.h
-		gui/wizarddialog.h)
+		gui/generalsettings.h)
 
 	QT5_ADD_RESOURCES(gui_rccs_srcs "./gui/nvagent.qrc")
 	QT5_WRAP_CPP(gui_headers_moc ${gui_headers})
@@ -66,8 +65,7 @@ if (WITH_GUI)
 			gui/maindialog.ui
 			gui/accountsettings.ui
 			gui/logsettings.ui
-			gui/generalsettings.ui
-			gui/wizarddialog.ui)
+			gui/generalsettings.ui)
 
 	add_definitions(${QT5_DEFINITIONS})
 
@@ -79,7 +77,7 @@ if (WITH_GUI)
 		set_target_properties(netvfy-agent PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/gui/Info.plist)
 	endif()
 
-	target_link_libraries(netvfy-agent Qt5::Widgets Qt5::Network ${QT5_LIBRARIES})
+	target_link_libraries(netvfy-agent Qt5::Widgets Qt5::Network ${QT5_LIBRARIES} pthread)
 
 else()
 	set(cli_sources

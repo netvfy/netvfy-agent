@@ -24,6 +24,8 @@
 
 #include "maindialog.h"
 
+#include "../agent.h"
+
 int main(int argc, char *argv[])
 {
 	#if __APPLE__
@@ -33,6 +35,8 @@ int main(int argc, char *argv[])
 		char *executable_path = dirname(argv[0]);
 		chdir(executable_path);
 	#endif
+
+	ndb_init();
 
 	QApplication app(argc, argv);
 	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);

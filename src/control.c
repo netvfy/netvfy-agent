@@ -35,6 +35,7 @@
 
 #include <curl/curl.h>
 
+#include <event2/event.h>
 #include <event2/buffer.h>
 #include <event2/bufferevent.h>
 #include <event2/bufferevent_ssl.h>
@@ -748,6 +749,10 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 
 	} else if (events & (BEV_EVENT_TIMEOUT | BEV_EVENT_EOF | BEV_EVENT_ERROR)) {
 
+		printf("timeout: %d\n", events & BEV_EVENT_TIMEOUT);
+		printf("EOF: %d\n", events & BEV_EVENT_EOF);
+		printf("ERR: %d> %s\n", events & BEV_EVENT_ERROR, evutil_socket_error_to_string(EVUTIL_SOCKET_ERROR()));
+
 		while ((e = bufferevent_get_openssl_error(bev)) > 0) {
 			log_warnx("%s: TLS error: %s", __func__,
 			    ERR_reason_error_string(e));
@@ -767,10 +772,6 @@ int
 control_init(const char *network_name)
 {
 	struct network		*netcf = NULL;
-
-	SSL_library_init();
-	SSL_load_error_strings();
-	OpenSSL_add_all_algorithms();
 
 	log_init(2, LOG_DAEMON);
 

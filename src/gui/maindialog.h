@@ -29,7 +29,6 @@
 class AccountSettings;
 class LogSettings;
 class GeneralSettings;
-class WizardDialog;
 
 class MainDialog: public QDialog
 {
@@ -43,13 +42,14 @@ class MainDialog: public QDialog
 		static void onLog(const char *);
 		static void onConnect(const char *ip);
 		static void onDisconnect();
+		static void onListNetworks(const char *network);
 
 	public slots:
 		void slotExit();
-		void slotWizardCancel();
-		void slotWizardNext();
 		void slotToggleAutoConnect(int);
-		void slotFireConnection();
+		void slotAddNetwork();
+		void slotDeleteNetwork();
+		void slotResetNetworkList();
 		void slotResetAccount();
 		void trayIconClicked(QSystemTrayIcon::ActivationReason);
 
@@ -59,7 +59,6 @@ class MainDialog: public QDialog
 		AccountSettings *accountSettings;
 		LogSettings *logSettings;
 		GeneralSettings *generalSettings;
-		WizardDialog *wizardDialog;
 
 		QString ProvKey;
 		QSystemTrayIcon *trayIcon;
