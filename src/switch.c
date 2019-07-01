@@ -512,7 +512,7 @@ vlink_reconnect(struct vlink *vlink)
 {
 	struct timeval	tv;
 
-	if (agent_cb->disconnected)
+	if (agent_cb && agent_cb->disconnected)
 		agent_cb->disconnected();
 
 	vlink_stop(vlink);
@@ -573,7 +573,7 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 			log_warn("%s: event_add", __func__);
 		}
 
-		if (agent_cb->connected)
+		if (agent_cb && agent_cb->connected)
 			agent_cb->connected(p->vlink->tap_ipaddr);
 
 	} else if (events & (BEV_EVENT_ERROR | BEV_EVENT_TIMEOUT | BEV_EVENT_EOF)) {
