@@ -645,7 +645,7 @@ vlink_reset(struct vlink *vlink)
 {
 	struct timeval	wait_sec = {5, 0};
 
-	printf("connecting to the controller...\n");
+	log_info("connecting to the controller...");
 	event_del(vlink->ev_keepalive);
 	event_del(vlink->ev_readagain);
 	event_del(vlink->ev_reconnect);
@@ -730,7 +730,7 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 
 	if (events & BEV_EVENT_CONNECTED) {
 
-		printf("connected.\n");
+		log_info("connected to the controller");
 
 		event_del(p->vlink->ev_reconnect);
 
@@ -773,10 +773,6 @@ control_init(const char *network_name)
 {
 	struct network		*netcf = NULL;
 
-	log_init(2, LOG_DAEMON);
-
-	printf("network name: %s\n", network_name);
-
 	if ((netcf = ndb_network(network_name)) == NULL) {
 		log_warnx("%s: the network doesn't exist: %s",
 		    __func__, network_name);
@@ -807,6 +803,8 @@ control_init(const char *network_name)
 		log_warnx("%s: tapcfg_start", __func__);
 		goto error;
 	}
+
+	// TODO tapcfg_set_log_callback(tapcfg_t *tapcfg, taplog_callback_t callback)
 
 	if ((vlink->netname = strdup(network_name)) == NULL) {
 		log_warn("%s: strdup", __func__);

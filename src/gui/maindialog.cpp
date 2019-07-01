@@ -78,6 +78,7 @@ void MainDialog::NowRun()
 
 	agent_cb->connected = this->onConnect;
 	agent_cb->disconnected = this->onDisconnect;
+	agent_cb->log = this->onLog;
 
 	slotResetNetworkList();
 }
