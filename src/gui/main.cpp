@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
 	#endif
 
 	ndb_init();
+	agent_init_cb();
 
 	QApplication app(argc, argv);
 	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);

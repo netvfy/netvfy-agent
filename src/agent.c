@@ -19,6 +19,7 @@ static pthread_t	 thread_start;
 static const char	 *netname;
 #endif
 
+struct agent_event	*agent_cb = NULL;
 struct event_base	*ev_base = NULL;
 
 void
@@ -28,6 +29,15 @@ sighandler(int signal, short events, void *arg)
 	(void)events;
 
 	event_base_loopbreak(arg);
+}
+
+void
+agent_init_cb(void)
+{
+	agent_cb = malloc(sizeof(struct agent_event));
+	agent_cb->connected = NULL;
+	agent_cb->disconnected = NULL;
+	agent_cb->disconnect = NULL;
 }
 
 void
