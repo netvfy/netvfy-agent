@@ -76,6 +76,9 @@ void MainDialog::NowRun()
 	setTrayIcon();
 	trayIcon->show();
 
+	agent_cb->connected = this->onConnect;
+	agent_cb->disconnected = this->onDisconnect;
+
 	slotResetNetworkList();
 }
 

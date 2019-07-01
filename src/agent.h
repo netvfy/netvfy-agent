@@ -39,6 +39,12 @@ struct network {
 	unsigned long		 buf_total;
 };
 
+struct agent_event {
+	void	(*connected)(const char *);
+	void	(*disconnected)(void);
+	void	(*disconnect)(void);
+};
+
 void		 switch_fini(void);
 int		 switch_init(tapcfg_t *, int, const char *, const char *, const char *, const char *);
 
@@ -52,6 +58,7 @@ int		 ndb_provisioning(const char *, const char *);
 int		 control_init(const char *);
 void		 control_fini(void);
 
+void		 agent_init_cb(void);
 void		 agent_init(void);
 void		 agent_fini(void);
 void		 agent_start(const char *);
@@ -61,6 +68,7 @@ void		 agent_thread_start(const char*);
 #endif
 
 extern struct event_base 	*ev_base;
+extern struct agent_event	*agent_cb;
 
 #ifdef __cplusplus
 }
