@@ -95,7 +95,7 @@ void MainDialog::slotAddNetwork(void)
 	bool	ok;
 
 	provcode = QInputDialog::getText(this, NULL,
-		tr("Your provisioning key:"), QLineEdit::Normal, NULL, &ok);
+		tr("Enter your provisioning key:"), QLineEdit::Normal, NULL, &ok);
 
 	if (ok) {
 		netname = QInputDialog::getText(this, NULL,

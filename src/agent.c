@@ -106,6 +106,13 @@ void
 agent_thread_start(const char *name)
 {
 	struct sched_param	param;
+	/* When launching the connection thread via the Qt GUI,
+	 * the priority is not high enough and the thread can
+	 * starve. Making the agent disconnect simultanously from
+	 * the controller and the switch because of a timeout with
+	 * the keepalive. So the policy is set to SCHED_RR to
+	 * avoid this situation.
+	 */
 	int			policy = SCHED_RR;
 
 	netname = strdup(name);
