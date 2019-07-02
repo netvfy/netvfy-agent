@@ -43,6 +43,7 @@ struct agent_event {
 	void	(*connected)(const char *);
 	void	(*disconnected)(void);
 	void	(*disconnect)(void);
+	void	(*log)(const char *);
 };
 
 void		 switch_fini(void);

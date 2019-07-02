@@ -517,7 +517,7 @@ vlink_reconnect(struct vlink *vlink)
 
 	vlink_stop(vlink);
 
-	printf("connecting to the virtual network...\n");
+	log_info("connecting to the virtual network...");
 
 	tv.tv_sec = 5;
 	tv.tv_usec = 0;
@@ -558,7 +558,7 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 
 	if (events & BEV_EVENT_CONNECTED) {
 
-		printf("connected.\n");
+		log_info("connected to the virtual switch");
 
 		p->status = 1;
 		event_del(p->vlink->ev_reconnect);

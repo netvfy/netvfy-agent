@@ -32,12 +32,22 @@ sighandler(int signal, short events, void *arg)
 }
 
 void
+agent_log_cb(const char *msg)
+{
+	if (agent_cb && agent_cb->log)
+		agent_cb->log(msg);
+}
+
+void
 agent_init_cb(void)
 {
 	agent_cb = malloc(sizeof(struct agent_event));
 	agent_cb->connected = NULL;
 	agent_cb->disconnected = NULL;
 	agent_cb->disconnect = NULL;
+	agent_cb->log = NULL;
+
+	log_setcb(agent_log_cb);
 }
 
 void
