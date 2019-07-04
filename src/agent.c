@@ -2,6 +2,7 @@
 	#include <pthread.h>
 #endif
 
+#include <signal.h>
 #include <event2/event.h>
 
 #include "log.h"
