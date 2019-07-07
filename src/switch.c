@@ -160,6 +160,7 @@ vlink_free(struct vlink *v)
 	tls_peer_free(v->peer);
 	free(v->tap_ipaddr);
 	free(v->addr);
+	free(v->port);
 	free(v);
 }
 
