@@ -465,6 +465,7 @@ fetch_netinfos(struct vlink *v)
 
 	ret = 0;
 err:
+	curl_slist_free_all(req_headers);
 	curl_global_cleanup();
 
 	free(payload);
@@ -485,8 +486,11 @@ vlink_free(struct vlink *v)
 	tapcfg_destroy(v->tapcfg);
 #endif
 
-	event_free(v->ev_reconnect);
-	event_free(v->ev_keepalive);
+	if (v->ev_reconnect != NULL)
+		event_free(v->ev_reconnect);
+	if (v->ev_keepalive != NULL)
+		event_free(v->ev_keepalive);
+	if (v->ev_readagain != NULL)
 	event_free(v->ev_readagain);
 
 	free(v->addr);
@@ -730,7 +734,7 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 
 	if (events & BEV_EVENT_CONNECTED) {
 
-		log_info("connected to the controller");
+		log_info("connected!");
 
 		event_del(p->vlink->ev_reconnect);
 

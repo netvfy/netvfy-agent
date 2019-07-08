@@ -13,8 +13,8 @@ static void		sighandler(int, short, void *);
 static void		_agent_start(void *arg);
 #endif
 
-static struct event	*ev_sigint;
-static struct event	*ev_sigterm;
+static struct event	*ev_sigint = NULL;
+static struct event	*ev_sigterm = NULL;
 #ifdef USE_THREAD
 static pthread_t	 thread_start;
 static const char	 *netname;
@@ -94,9 +94,12 @@ agent_init(void)
 void
 agent_fini(void)
 {
-	event_free(ev_sigint);
-	event_free(ev_sigterm);
-	event_base_free(ev_base);
+	if (ev_sigint != NULL)
+		event_free(ev_sigint);
+	if (ev_sigterm != NULL)
+		event_free(ev_sigterm);
+	if (ev_base != NULL)
+		event_base_free(ev_base);
 }
 
 void
