@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 project(netvfy)
 
 SET(CPACK_PACKAGE_VERSION "1.0.0")
+SET(NVAGENT_VERSION "1.0.0")
 
 enable_testing()
 

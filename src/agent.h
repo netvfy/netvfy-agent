@@ -17,6 +17,10 @@
 #ifndef NVAGENT_H
 #define NVAGENT_H
 
+#ifndef NVAGENT_VERSION
+#error "Only versioned builds are supported.";
+#endif
+
 #include <sys/tree.h>
 
 #include <tapcfg.h>
