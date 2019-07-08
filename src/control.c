@@ -734,7 +734,7 @@ peer_event_cb(struct bufferevent *bev, short events, void *arg)
 
 	if (events & BEV_EVENT_CONNECTED) {
 
-		log_info("connected !");
+		log_info("connected!");
 
 		event_del(p->vlink->ev_reconnect);
 
