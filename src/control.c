@@ -187,7 +187,8 @@ xmit_nodeinfo(struct tls_peer *p)
 	    "action", "nodeinfo",
 	    "local_ipaddr", lipaddr,
 	    "sysname", sysname,
-	    "lladdr", lladdr_str)) == NULL) {
+	    "lladdr", lladdr_str,
+	    "agent_version", NVAGENT_VERSION)) == NULL) {
 		log_warnx("%s: json_pack", __func__);
 		goto error;
 	}

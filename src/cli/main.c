@@ -46,8 +46,9 @@ main(int argc, char *argv[])
 	char		*provcode = NULL;
 	char		*network_name = NULL;
 	char		 new_name[64];
+	int		version; 
 
-	while ((ch = getopt(argc, argv, "hk:n:lc:d:")) != -1) {
+	while ((ch = getopt(argc, argv, "hk:n:lc:d:v")) != -1) {
 
 		switch (ch) {
 		case 'n':
@@ -65,6 +66,9 @@ main(int argc, char *argv[])
 		case 'd':
 			del_network = 1;
 			network_name = optarg;
+			break;
+		case 'v':
+			version = 1;
 			break;
 		case 'h':
 		default:
@@ -95,6 +99,11 @@ main(int argc, char *argv[])
 		exit(0);
 	}
 
+	if (version) {
+		printf("%s\n", NVAGENT_VERSION);
+		exit(0);
+	}
+
 	char *p;
 	if (provcode != NULL) {	
 		if (network_name == NULL) {
@@ -113,11 +122,11 @@ main(int argc, char *argv[])
 		else
 			goto out;
 
-	} else if (network_name)
+	} else if (network_name) {
 		agent_start(network_name);
-	else
+	} else {
 		usage();
-
+	}
 	printf("agent shutdown...\n");
 out:
 	ndb_fini();
