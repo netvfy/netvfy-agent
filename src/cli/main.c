@@ -43,10 +43,10 @@ main(int argc, char *argv[])
 	int		 ch;
 	int		 list_networks = 0;
 	int		 del_network = 0;
+	int		 version = 0;
 	char		*provcode = NULL;
 	char		*network_name = NULL;
 	char		 new_name[64];
-	int		version; 
 
 	while ((ch = getopt(argc, argv, "hk:n:lc:d:v")) != -1) {
 
