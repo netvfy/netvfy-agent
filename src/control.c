@@ -183,7 +183,7 @@ xmit_nodeinfo(struct tls_peer *p)
             ((uint8_t *)lladdr)[4],
             ((uint8_t *)lladdr)[5]);
 
-	if ((jmsg = json_pack("{s:s,s:s,s:s}",
+	if ((jmsg = json_pack("{s:s,s:s,s:s,s:s,s:s}",
 	    "action", "nodeinfo",
 	    "local_ipaddr", lipaddr,
 	    "sysname", sysname,
