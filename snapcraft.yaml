@@ -32,9 +32,12 @@ parts:
       - libjansson-dev
       - libcurl4-openssl-dev
     stage-packages:
-      - libevent
-      - libcurl
-      - libjansson
+      - libevent-2.1-6
+      - libevent-core-2.1-6
+      - libevent-extra-2.1-6
+      - libevent-openssl-2.1-6
+      - libjansson-4
+      - libcurl4
     override-build: |
       cd $SNAPCRAFT_PART_SRC/tapcfg/
       ./buildall.sh || true
