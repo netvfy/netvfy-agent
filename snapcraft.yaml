@@ -36,7 +36,7 @@ parts:
       - libevent-core-2.1-6
       - libevent-extra-2.1-6
       - libevent-openssl-2.1-6
-      - libjansson-4
+      - libjansson4
       - libcurl4
     override-build: |
       cd $SNAPCRAFT_PART_SRC/tapcfg/
