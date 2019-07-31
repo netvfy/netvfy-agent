@@ -699,10 +699,10 @@ peer_read_cb(struct bufferevent *bev, void *arg)
 			goto error;
 		}
 
-		if (strcmp(action, "networkinfo") == 0) {
+		if (strcmp(action, "netinfos") == 0) {
 			if (json_unpack(jmsg, "{s:s, s:s, s:s}",
-			    "vswitch_addr", &vswitch_addr,
-			    "vswitch_port", &vswitch_port,
+			    "addr", &vswitch_addr,
+			    "port", &vswitch_port,
 			    "ipaddr", &ipaddr) < 0) {
 				log_warnx("%s: json_unpack ipaddr", __func__);
 				goto error;
