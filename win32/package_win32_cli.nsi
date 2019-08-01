@@ -19,8 +19,8 @@ SetCompressor /FINAL /SOLID lzma
 ; Include Modern UI
 	!include "MUI2.nsh"
 
-	!define MUI_ICON "../nvagent/src/gui/rc/nvagent.ico"
-	!define MUI_UNICON "../nvagent/src/gui/rc/nvagent.ico"
+	!define MUI_ICON "../src/gui/rc/nvagent.ico"
+	!define MUI_UNICON "../src/gui/rc/nvagent.ico"
 
 	!define MUI_HEADERIMAGE
 	!define MUI_HEADERIMAGE_RIGH
@@ -34,12 +34,12 @@ SetCompressor /FINAL /SOLID lzma
 ; General
 	!include "x64.nsh"
 	!define /date NOW "%y.%m.%d"
-	Name "NetVirt Agent CLI"
+	Name "Netvfy Agent CLI"
 	!ifndef OUTFILE
-		!define OUTFILE "${BDIR}/netvirt-agent2-cli-${NOW}_x86.exe"
+		!define OUTFILE "${BDIR}/netvfy-agent-cli-${NOW}_x86.exe"
 	!endif
 	OutFile "${OUTFILE}"
-	InstallDir $PROGRAMFILES\netvirt-agent2-cli
+	InstallDir $PROGRAMFILES\netvfy-agent-cli
 
 	; Ask admin privileges
 	RequestExecutionLevel admin
@@ -65,10 +65,10 @@ SetCompressor /FINAL /SOLID lzma
 
 ;-------------------
 ; Installer section
-	Section "NetVirt Agent CLI"
+	Section "Netvfy Agent CLI"
 		setOutPath $INSTDIR
 
-		File ${BDIR}/nvagent/src/netvirt-agent2.exe
+		File ${BDIR}/src/netvfy-agent.exe
 		File ${TAPCFG_PATH}/build/tapcfg.dll
 		File ${MINGW_PATH}/libgcc_s_sjlj-1.dll
 		File ${MINGW_PATH}/libstdc++-6.dll
@@ -84,10 +84,10 @@ SetCompressor /FINAL /SOLID lzma
 		File ${LIBCURL_PATH}/lib/.libs/libcurl-4.dll
 		File /oname=curl-ca-bundle.crt ${LIBCURL_PATH}/lib/ca-bundle.crt
 
-		CreateDirectory $APPDATA\netvirt\default
+		CreateDirectory $APPDATA\netvfy\default
 
 		; Create uninstaller
-		WriteUninstaller "$INSTDIR\netvirt-agent2-uninstall.exe"
+		WriteUninstaller "$INSTDIR\netvfy-agent-uninstall.exe"
 
 	sectionEnd
 
