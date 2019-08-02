@@ -700,7 +700,7 @@ peer_read_cb(struct bufferevent *bev, void *arg)
 		}
 
 		if (strcmp(action, "netinfos") == 0) {
-			if (json_unpack(jmsg, "[{s:s, s:s, s:s}]",
+			if (json_unpack(jmsg, "{s:s, s:s, s:s}",
 			    "addr", &vswitch_addr,
 			    "port", &vswitch_port,
 			    "ipaddr", &ipaddr) < 0) {
