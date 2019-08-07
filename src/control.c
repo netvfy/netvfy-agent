@@ -433,9 +433,6 @@ fetch_netinfos(struct vlink *v)
 
 	snprintf(url, sizeof(url), "https://%s/v1/netinfos", v->api_srv);
 
-	/* In windows, this will init the winsock stuff */
-	curl_global_init(CURL_GLOBAL_ALL);
-
 	if ((curl = curl_easy_init()) == NULL) {
 		log_warnx("%s: curl_easy_init", __func__);
 		goto err;
@@ -467,7 +464,6 @@ fetch_netinfos(struct vlink *v)
 	ret = 0;
 err:
 	curl_slist_free_all(req_headers);
-	curl_global_cleanup();
 
 	free(payload);
 	json_decref(jquery);
