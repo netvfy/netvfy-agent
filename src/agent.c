@@ -2,6 +2,8 @@
 	#include <pthread.h>
 #endif
 
+#include <curl/curl.h>
+
 #include <signal.h>
 #include <event2/event.h>
 
@@ -89,11 +91,16 @@ agent_init(void)
 	SSL_library_init();
 	SSL_load_error_strings();
 	OpenSSL_add_all_algorithms();
+
+	/* In windows, this will init the winsock stuff */
+	curl_global_init(CURL_GLOBAL_ALL);
 }
 
 void
 agent_fini(void)
 {
+	curl_global_cleanup();
+
 	if (ev_sigint != NULL)
 		event_free(ev_sigint);
 	if (ev_sigterm != NULL)
