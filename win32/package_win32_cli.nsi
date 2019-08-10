@@ -74,8 +74,8 @@ SetCompressor /FINAL /SOLID lzma
 		File ${MINGW_PATH}/libstdc++-6.dll
 		File ${MINGW_PATH}/libssp-0.dll
 		File /usr/i686-w64-mingw32/lib/libwinpthread-1.dll
-		File ${LIBRESSL_PATH}/ssl/.libs/libssl-44.dll
-		File ${LIBRESSL_PATH}/crypto/.libs/libcrypto-42.dll
+		File ${LIBRESSL_PATH}/ssl/.libs/libssl-47.dll
+		File ${LIBRESSL_PATH}/crypto/.libs/libcrypto-45.dll
 		File ${LIBEVENT_PATH}/.libs/libevent-2-0-5.dll
 		File ${LIBEVENT_PATH}/.libs/libevent_core-2-0-5.dll
 		File ${LIBEVENT_PATH}/.libs/libevent_extra-2-0-5.dll

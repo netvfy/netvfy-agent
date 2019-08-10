@@ -2,14 +2,14 @@ FROM debian:stretch
 
 RUN apt-get update -qq && apt-get install -yq --no-install-recommends ca-certificates curl scons cmake build-essential mingw-w64 nsis unzip
 
-ENV LIBJANSSON_VERSION 2.10
+ENV LIBJANSSON_VERSION 2.12
 ENV LIBJANSSON_URL "http://www.digip.org/jansson/releases/jansson-${LIBJANSSON_VERSION}.tar.bz2"
 RUN curl "${LIBJANSSON_URL}" | tar xjf - -C /usr/src
 WORKDIR "/usr/src/jansson-${LIBJANSSON_VERSION}"
 RUN CC=i686-w64-mingw32-gcc CPPFLAGS=-D__MINGW_USE_VC2005_COMPAT ./configure --host=i686-w64-mingw32
 RUN make
 
-ENV LIBRESSL_VERSION 2.6.4
+ENV LIBRESSL_VERSION 2.9.2
 ENV LIBRESSL_URL "https://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${LIBRESSL_VERSION}.tar.gz"
 RUN curl "${LIBRESSL_URL}" | tar xzf - -C /usr/src
 WORKDIR "/usr/src/libressl-${LIBRESSL_VERSION}"
