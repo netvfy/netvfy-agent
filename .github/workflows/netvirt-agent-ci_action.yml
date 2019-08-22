@@ -9,6 +9,14 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+    - name: install tooling
+      run: |
+        apt-get install build-essential
+        apt-get install scons
+        apt-get install cmake
+        apt-get install libjansson-dev
+        apt-get install libevent-dev
+        apt-get install libcurl4-openssl-dev
     - name: build netvfy-agent
       run: |
         git submodule init && git submodule update
