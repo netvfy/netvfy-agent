@@ -1,4 +1,4 @@
-name: netvfy-agent-ci
+name: netvfy-agent-cli
 
 on: [push]
 
