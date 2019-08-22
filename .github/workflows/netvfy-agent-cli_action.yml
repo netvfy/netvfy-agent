@@ -1,6 +1,6 @@
 name: netvfy-agent-cli
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
