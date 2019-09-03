@@ -41,7 +41,14 @@ message(STATUS "CMAKE_SOURCE_DIR" ${CMAKE_SOURCE_DIR})
 link_directories("${TAPCFG_ROOT_DIR}/build")
 
 if (WITH_GUI)
+	set(gui_sources gui/main.cpp)
 
+	include_directories("${CMAKE_SOURCE_DIR}/wx/include/")
+	add_executable(netvfy-agent ${nvagent_soruces} ${gui_sources})
+
+	set(GUI_LIBS
+		"${CMAKE_SOURCE_DIR}/wx/lib/gcc810_dll/libwxbase31u.a"
+		"${CMAKE_SOURCE_DIR}/wx/lib/gcc810_dll/libwxmsw31u_core.a")
 else()
 	set(cli_sources cli/main.c)
 	add_executable(netvfy-agent MACOSX_BUNDLE ${nvagent_sources} ${cli_sources})
@@ -71,7 +78,8 @@ elseif (WIN32)
 		nv
 		${LIBS_FOR_WIN32}
 		${OPENSSL_LIBRARIES}
-		${TAPCFG_ROOT_DIR}/build/tapcfg.dll)
+		${TAPCFG_ROOT_DIR}/build/tapcfg.dll
+		${GUI_LIBS})
 else()
 	target_link_libraries(netvfy-agent
 		curl
