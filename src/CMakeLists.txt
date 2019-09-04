@@ -45,6 +45,7 @@ if (WITH_GUI)
 
 	include_directories("${CMAKE_SOURCE_DIR}/wx/include/")
 	add_executable(netvfy-agent ${nvagent_soruces} ${gui_sources})
+	set_target_properties(netvfy-agent PROPERTIES LINK_FLAGS "-mwindows")
 
 	set(GUI_LIBS
 		"${CMAKE_SOURCE_DIR}/wx/lib/gcc810_dll/libwxbase31u.a"
