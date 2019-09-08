@@ -41,15 +41,33 @@ message(STATUS "CMAKE_SOURCE_DIR" ${CMAKE_SOURCE_DIR})
 link_directories("${TAPCFG_ROOT_DIR}/build")
 
 if (WITH_GUI)
+
 	set(gui_sources gui/main.cpp)
 
 	include_directories("${CMAKE_SOURCE_DIR}/wx/include/")
 	add_executable(netvfy-agent ${nvagent_soruces} ${gui_sources})
 	set_target_properties(netvfy-agent PROPERTIES LINK_FLAGS "-mwindows")
 
-	set(GUI_LIBS
-		"${CMAKE_SOURCE_DIR}/wx/lib/gcc810_dll/libwxbase31u.a"
-		"${CMAKE_SOURCE_DIR}/wx/lib/gcc810_dll/libwxmsw31u_core.a")
+	if (WIN32)
+		set(GUI_LIBS
+			"${CMAKE_SOURCE_DIR}/wx/lib/gcc810_dll/libwxbase31u.a"
+			"${CMAKE_SOURCE_DIR}/wx/lib/gcc810_dll/libwxmsw31u_core.a")
+	elseif (APPLE)
+
+		# TODO use output to set flags
+		# ${CMAKE_SOURCE_DIR}/wx/build-cocoa-debug/wx-config --cxxflags
+		# ${CMAKE_SOURCE_DIR}/wx/build-cocoa-debug/wx-config --libs core
+
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+			-I${CMAKE_SOURCE_DIR}/wx/build-cocoa-debug/lib/wx/include/osx_cocoa-unicode-3.1 \
+			-I${CMAKE_SOURCE_DIR}/wx/include \
+			-D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXMAC__ -D__WXOSX__ -D__WXOSX_COCOA__")
+
+		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} \
+			-L${CMAKE_SOURCE_DIR}/wx/build-cocoa-debug/lib \
+			-framework IOKit -framework Carbon -framework Cocoa \
+			-framework AudioToolbox -framework System -framework OpenGL -lwx_osx_cocoau_core-3.1 -lwx_baseu-3.1")
+	endif()
 else()
 	set(cli_sources cli/main.c)
 	add_executable(netvfy-agent MACOSX_BUNDLE ${nvagent_sources} ${cli_sources})
