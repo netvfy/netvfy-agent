@@ -45,7 +45,7 @@ if (WITH_GUI)
 	set(gui_sources gui/main.cpp)
 
 	include_directories("${CMAKE_SOURCE_DIR}/wx/include/")
-	add_executable(netvfy-agent ${nvagent_soruces} ${gui_sources})
+	add_executable(netvfy-agent ${nvagent_sources} ${gui_sources})
 	set_target_properties(netvfy-agent PROPERTIES LINK_FLAGS "-mwindows")
 
 	if (WIN32)
