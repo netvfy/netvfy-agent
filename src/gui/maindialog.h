@@ -15,9 +15,12 @@ public:
 
 	/* Interface between C backend and WX GUI */
 	static void onListNetworks(const char *);
+	static void onConnect(const char *);
+	static void onDisconnect();
+	static void onLog(const char *);
 
 private:
-
+	void OnClickConnect(wxCommandEvent &event);
 protected:
 	wxNotebook	*notebook_1;
 	wxPanel		*notebook_1_pane_1;

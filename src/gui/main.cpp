@@ -4,6 +4,9 @@
 MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
     wxFrame(parent, id, title, pos, size, wxDEFAULT_FRAME_STYLE)
 {
+
+	const int ID_CONNECT = 1;
+
 	SetSize(wxSize(625, 332));
 	SetTitle(wxT("frame"));
 
@@ -30,9 +33,14 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_3->Add(list_box_1, 0, 0, 0);
 	wxBoxSizer *sizer_4 = new wxBoxSizer(wxHORIZONTAL);
 	sizer_2->Add(sizer_4, 1, wxEXPAND, 0);
-	button_1 = new wxButton(notebook_1_pane_1, wxID_ANY, wxT("button_1"));
+
+	button_1 = new wxButton(notebook_1_pane_1, ID_CONNECT, wxT("Connect"));
+	Connect(ID_CONNECT, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MyFrame::OnClickConnect));
+
 	sizer_4->Add(button_1, 0, 0, 0);
-	button_2 = new wxButton(notebook_1_pane_1, wxID_ANY, wxT("button_2"));
+
+	button_2 = new wxButton(notebook_1_pane_1, wxID_ANY, wxT("Disconnect"));
+
 	sizer_4->Add(button_2, 0, 0, 0);
 
 	notebook_1_Logactivity = new wxPanel(notebook_1, wxID_ANY);
@@ -48,7 +56,6 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	Layout();
 }
 
-
 class MyApp: public wxApp {
 public:
 	bool OnInit();
@@ -56,8 +63,32 @@ public:
 
 IMPLEMENT_APP(MyApp)
 
+void MyFrame::OnClickConnect(wxCommandEvent &event)
+{
+	wxString	 wstr;
+	int		 id;
+	const char	*network;
+
+	id = this->list_box_1->GetSelection();
+	wstr = this->list_box_1->GetString(id);
+
+	network = str.mb_str(wxConvUTF8);
+	agent_thread_start(network);
+}
+
+
 // TODO makes it global for now.
 MyFrame *frame;
+
+void MyFrame::onConnect(const char *ip)
+{
+
+}
+
+void MyFrame::onDisconnect()
+{
+
+}
 
 void MyFrame::onListNetworks(const char *network)
 {
