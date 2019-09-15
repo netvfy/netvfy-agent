@@ -1,3 +1,5 @@
+#include <wx/event.h>
+
 #include "maindialog.h"
 #include "../agent.h"
 
@@ -46,7 +48,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	notebook_1_Logactivity = new wxPanel(notebook_1, wxID_ANY);
 	notebook_1->AddPage(notebook_1_Logactivity, wxT("Log activity"));
 	wxBoxSizer *sizer_1 = new wxBoxSizer(wxVERTICAL);
-	text_ctrl_1 = new wxTextCtrl(notebook_1_Logactivity, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
+	text_ctrl_1 = new wxTextCtrl(notebook_1_Logactivity, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(500,300), wxTE_MULTILINE);
 	sizer_1->Add(text_ctrl_1, 0, wxEXPAND|wxSHAPED, 0);
 	notebook_1_General = new wxPanel(notebook_1, wxID_ANY);
 	notebook_1->AddPage(notebook_1_General, wxT("General"));
@@ -72,7 +74,7 @@ void MyFrame::OnClickConnect(wxCommandEvent &event)
 	id = this->list_box_1->GetSelection();
 	wstr = this->list_box_1->GetString(id);
 
-	network = str.mb_str(wxConvUTF8);
+	network = wstr.mb_str(wxConvUTF8);
 	agent_thread_start(network);
 }
 
@@ -90,6 +92,20 @@ void MyFrame::onDisconnect()
 
 }
 
+void MyFrame::UpdateLog(wxString logline)
+{
+	frame->text_ctrl_1->AppendText(logline);
+}
+
+void MyFrame::onLog(const char *logline)
+{
+	/* This callback is fired from another thread. By using CallAfter(),
+	 * the function UpdateLog() will be able to write the logline to the
+	 * text widget from the GUI thread.
+	 */
+	frame->CallAfter(&MyFrame::UpdateLog, wxString::FromUTF8(logline));
+}
+
 void MyFrame::onListNetworks(const char *network)
 {
 	frame->list_box_1->Append( wxString::FromAscii(network));
@@ -103,6 +119,10 @@ bool MyApp::OnInit()
 	wxInitAllImageHandlers();
 	frame = new MyFrame(NULL, wxID_ANY, wxEmptyString);
 	SetTopWindow(frame);
+
+	agent_cb->connected = frame->onConnect;
+	agent_cb->disconnected = frame->onDisconnect;
+	agent_cb->log = frame->onLog;
 
 	ndb_networks(frame->onListNetworks);
 

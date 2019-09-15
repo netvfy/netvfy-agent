@@ -21,6 +21,7 @@ public:
 
 private:
 	void OnClickConnect(wxCommandEvent &event);
+	void UpdateLog(wxString logline);
 protected:
 	wxNotebook	*notebook_1;
 	wxPanel		*notebook_1_pane_1;
