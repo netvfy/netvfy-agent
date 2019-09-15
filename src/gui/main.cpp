@@ -21,9 +21,13 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_2->Add(sizer_5, 1, wxEXPAND, 0);
 	wxStaticBitmap *bitmap_1 = new wxStaticBitmap(notebook_1_pane_1, wxID_ANY, wxNullBitmap);
 	sizer_5->Add(bitmap_1, 0, 0, 0);
-	wxStaticText *static_text_1 = new wxStaticText(notebook_1_pane_1, wxID_ANY, wxT("static_text_1"));
+
+	static_text_1 = new wxStaticText(notebook_1_pane_1, wxID_ANY, wxT("Disconnected !"));
+
 	sizer_5->Add(static_text_1, 0, wxALIGN_CENTER, 0);
-	wxStaticText *static_text_2 = new wxStaticText(notebook_1_pane_1, wxID_ANY, wxT("static_text_2"));
+
+	static_text_2 = new wxStaticText(notebook_1_pane_1, wxID_ANY, wxT("static_text_2"));
+
 	sizer_5->Add(static_text_2, 0, wxALIGN_CENTER, 0);
 	wxStaticLine *static_line_1 = new wxStaticLine(notebook_1_pane_1, wxID_ANY);
 	sizer_2->Add(static_line_1, 0, wxEXPAND, 0);
@@ -37,7 +41,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_2->Add(sizer_4, 1, wxEXPAND, 0);
 
 	button_1 = new wxButton(notebook_1_pane_1, ID_CONNECT, wxT("Connect"));
-	Connect(ID_CONNECT, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MyFrame::OnClickConnect));
+	Connect(ID_CONNECT, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MyFrame::onClickConnect));
 
 	sizer_4->Add(button_1, 0, 0, 0);
 
@@ -65,7 +69,7 @@ public:
 
 IMPLEMENT_APP(MyApp)
 
-void MyFrame::OnClickConnect(wxCommandEvent &event)
+void MyFrame::onClickConnect(wxCommandEvent &event)
 {
 	wxString	 wstr;
 	int		 id;
@@ -82,9 +86,14 @@ void MyFrame::OnClickConnect(wxCommandEvent &event)
 // TODO makes it global for now.
 MyFrame *frame;
 
+void MyFrame::updateConnect(wxString ip)
+{
+	frame->static_text_1->SetLabel("Connected..");
+	frame->static_text_2->SetLabel(ip);
+}
 void MyFrame::onConnect(const char *ip)
 {
-
+	frame->CallAfter(&MyFrame::updateConnect, wxString::FromUTF8(ip));
 }
 
 void MyFrame::onDisconnect()
@@ -92,7 +101,7 @@ void MyFrame::onDisconnect()
 
 }
 
-void MyFrame::UpdateLog(wxString logline)
+void MyFrame::updateLog(wxString logline)
 {
 	frame->text_ctrl_1->AppendText(logline);
 }
@@ -100,10 +109,10 @@ void MyFrame::UpdateLog(wxString logline)
 void MyFrame::onLog(const char *logline)
 {
 	/* This callback is fired from another thread. By using CallAfter(),
-	 * the function UpdateLog() will be able to write the logline to the
+	 * the function updateLog() will be able to write the logline to the
 	 * text widget from the GUI thread.
 	 */
-	frame->CallAfter(&MyFrame::UpdateLog, wxString::FromUTF8(logline));
+	frame->CallAfter(&MyFrame::updateLog, wxString::FromUTF8(logline));
 }
 
 void MyFrame::onListNetworks(const char *network)

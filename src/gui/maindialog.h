@@ -20,8 +20,9 @@ public:
 	static void onLog(const char *);
 
 private:
-	void OnClickConnect(wxCommandEvent &event);
-	void UpdateLog(wxString logline);
+	void onClickConnect(wxCommandEvent &event);
+	void updateConnect(wxString ip);
+	void updateLog(wxString logline);
 protected:
 	wxNotebook	*notebook_1;
 	wxPanel		*notebook_1_pane_1;
@@ -31,6 +32,8 @@ protected:
 	wxPanel		*notebook_1_Logactivity;
 	wxTextCtrl	*text_ctrl_1;
 	wxPanel		*notebook_1_General;
+	wxStaticText	*static_text_1;
+	wxStaticText	*static_text_2;
 };
 
 #endif
