@@ -21,6 +21,8 @@ public:
 
 private:
 	void onClickConnect(wxCommandEvent &event);
+	void onClickAddNetwork(wxCommandEvent &event);
+	void onClickDeleteNetwork(wxCommandEvent &event);
 	/*void onClickDisconnect(wxCommandEvent &event);*/
 
 	/* Interface between backend thread and GUI thread,
@@ -35,11 +37,12 @@ protected:
 	wxListBox	*list_box_1;
 	wxButton	*button_1;
 	wxButton	*button_2;
+	wxButton	*button_3;
 	wxPanel		*notebook_1_Logactivity;
 	wxTextCtrl	*text_ctrl_1;
 	wxPanel		*notebook_1_General;
 	wxStaticText	*static_text_1;
-	wxStaticText	*static_text_2;
+	wxTextCtrl	*static_text_2;
 };
 
 #endif

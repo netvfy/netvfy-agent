@@ -6,11 +6,12 @@
 MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
     wxFrame(parent, id, title, pos, size, wxDEFAULT_FRAME_STYLE)
 {
-
 	const int ID_CONNECT = 1;
 	const int ID_DISCONNECT = 2;
+	const int ID_ADD_NETWORK = 3;
+	const int ID_DELETE_NETWORK = 4;
 
-	SetSize(wxSize(625, 332));
+	SetSize(wxSize(430, 270));
 	SetTitle(wxT("netvfy-agent"));
 
 	notebook_1 = new wxNotebook(this, wxID_ANY);
@@ -18,33 +19,44 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	notebook_1->AddPage(notebook_1_pane_1, wxT("Account"));
 
 	wxBoxSizer *sizer_2 = new wxBoxSizer(wxVERTICAL);
-	wxBoxSizer *sizer_5 = new wxBoxSizer(wxHORIZONTAL);
-	sizer_2->Add(sizer_5, 1, wxEXPAND, 0);
-	wxStaticBitmap *bitmap_1 = new wxStaticBitmap(notebook_1_pane_1, wxID_ANY, wxNullBitmap);
-	sizer_5->Add(bitmap_1, 0, 0, 0);
-
-	static_text_1 = new wxStaticText(notebook_1_pane_1, wxID_ANY, wxT("Not Connected."));
-
-	sizer_5->Add(static_text_1, 0, wxALIGN_CENTER, 0);
-
-	static_text_2 = new wxStaticText(notebook_1_pane_1, wxID_ANY, wxT(""));
-
-	sizer_5->Add(static_text_2, 0, wxALIGN_CENTER, 0);
-	wxStaticLine *static_line_1 = new wxStaticLine(notebook_1_pane_1, wxID_ANY);
-	sizer_2->Add(static_line_1, 0, wxEXPAND, 0);
 	wxBoxSizer *sizer_3 = new wxBoxSizer(wxHORIZONTAL);
-	sizer_2->Add(sizer_3, 1, wxEXPAND, 0);
+	wxBoxSizer *sizer_4 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *sizer_5 = new wxBoxSizer(wxVERTICAL);
+
+	static_text_1 = new wxStaticText(notebook_1_pane_1,
+		wxID_ANY, wxT("Not Connected."));
+	static_text_2 = new wxTextCtrl(notebook_1_pane_1, wxID_ANY,
+		wxEmptyString, wxDefaultPosition, wxSize(-1,-1), wxTE_READONLY | wxNO_BORDER);
+	static_text_2->SetBackgroundColour(this->GetBackgroundColour());
+
 	list_box_1 = new wxListBox(notebook_1_pane_1, wxID_ANY, wxDefaultPosition);
 	list_box_1->SetMinSize(wxSize(300, 150));
 
-	sizer_3->Add(list_box_1, 0, 0, 0);
-	wxBoxSizer *sizer_4 = new wxBoxSizer(wxHORIZONTAL);
+	button_1 = new wxButton(notebook_1_pane_1, ID_CONNECT, wxT("Connect"));
+	Connect(ID_CONNECT, wxEVT_COMMAND_BUTTON_CLICKED,
+		wxCommandEventHandler(MyFrame::onClickConnect));
+
+	button_2 = new wxButton(notebook_1_pane_1, ID_ADD_NETWORK, wxT("Add"));
+	Connect(ID_ADD_NETWORK, wxEVT_COMMAND_BUTTON_CLICKED,
+		wxCommandEventHandler(MyFrame::onClickAddNetwork));
+
+	button_3 = new wxButton(notebook_1_pane_1, ID_DELETE_NETWORK, wxT("Delete"));
+	Connect(ID_DELETE_NETWORK, wxEVT_COMMAND_BUTTON_CLICKED,
+		wxCommandEventHandler(MyFrame::onClickDeleteNetwork));
+
+	/* The order the widgets are added to the sizers is important */
+	sizer_2->Add(sizer_3, 1, wxEXPAND, 0);
 	sizer_2->Add(sizer_4, 1, wxEXPAND, 0);
 
-	button_1 = new wxButton(notebook_1_pane_1, ID_CONNECT, wxT("Connect"));
-	Connect(ID_CONNECT, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MyFrame::onClickConnect));
+	sizer_3->Add(static_text_1, 1, wxALIGN_CENTER, 0);
+	sizer_3->Add(static_text_2, 1, wxALIGN_CENTER, 0);
 
-	sizer_4->Add(button_1, 0, 0, 0);
+	sizer_4->Add(list_box_1, 0, 0, 0);
+	sizer_4->Add(sizer_5, 1, wxEXPAND, 0);
+
+	sizer_5->Add(button_1, 1, wxALIGN_CENTER, 0);
+	sizer_5->Add(button_2, 0, wxALIGN_CENTER, 0);
+	sizer_5->Add(button_3, 0, wxALIGN_CENTER, 0);
 
 	/* TODO (we don't need it for now)
 	button_2 = new wxButton(notebook_1_pane_1, ID_DISCONNECT, wxT("Disconnect!"));
@@ -55,7 +67,8 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	notebook_1_Logactivity = new wxPanel(notebook_1, wxID_ANY);
 	notebook_1->AddPage(notebook_1_Logactivity, wxT("Log activity"));
 	wxBoxSizer *sizer_1 = new wxBoxSizer(wxVERTICAL);
-	text_ctrl_1 = new wxTextCtrl(notebook_1_Logactivity, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(500,300), wxTE_MULTILINE);
+	text_ctrl_1 = new wxTextCtrl(notebook_1_Logactivity, wxID_ANY,
+		wxEmptyString, wxDefaultPosition, wxSize(500,300), wxTE_MULTILINE);
 	sizer_1->Add(text_ctrl_1, 0, wxEXPAND|wxSHAPED, 0);
 
 	/* TODO (we don't need it for now)
@@ -93,6 +106,63 @@ void MyFrame::onClickConnect(wxCommandEvent &event)
 	button_1->Enable(false);
 }
 
+void MyFrame::onClickAddNetwork(wxCommandEvent &event)
+{
+	wxString	 	 provkey;
+	wxString		 network;
+	wxTextEntryDialog	 myDialog1(this, "Enter provisioning key:", "Add new network", "");
+	wxTextEntryDialog	 myDialog2(this, "Choose the network name:", "Add new network", "");
+
+	if (myDialog1.ShowModal() == wxID_OK) {
+		provkey = myDialog1.GetValue();
+	} else {
+		return;
+	}
+
+	if (myDialog2.ShowModal() == wxID_OK) {
+		network = myDialog2.GetValue();
+	} else {
+		return;
+	}
+
+	/* Strip " " around the provisioning key */
+	provkey.Replace("\"", "", true);
+
+	ndb_provisioning(provkey.mb_str(wxConvUTF8), network.mb_str(wxConvUTF8));
+
+	/* Update the list of network */
+	this->list_box_1->Clear();
+	ndb_networks(this->onListNetworks);
+}
+
+void MyFrame::onClickDeleteNetwork(wxCommandEvent &event)
+{
+	wxString	 wstr;
+	int		 id;
+	const char	*network;
+
+	id = this->list_box_1->GetSelection();
+	/* If nothing is selected yet, just do nothing */
+	if (id == -1)
+		return;
+
+	wstr = this->list_box_1->GetString(id);
+	network = wstr.mb_str(wxConvUTF8);
+
+	wxMessageDialog *myDialog1 = new wxMessageDialog(NULL,
+		network, wxT("Are you sure you want to delete this network ?"),
+		wxYES_NO | wxNO_DEFAULT | wxICON_EXCLAMATION);
+	if (myDialog1->ShowModal() != wxID_YES) {
+		return;
+	}
+
+	ndb_network_remove(network);
+
+	/* Update the list of network */
+	this->list_box_1->Clear();
+	ndb_networks(this->onListNetworks);
+}
+
 /*
 void MyFrame::onClickDisconnect(wxCommandEvent &event)
 {
@@ -102,9 +172,9 @@ void MyFrame::onClickDisconnect(wxCommandEvent &event)
 
 MyFrame *frame;
 
-/* Here we use a trampoline technique to communicated events (onConnect, onDisconnect, onLog)
- * between the backend and the GUI interface. Also, byusing CallAfter(), the widgets are updated
- * from the GUI main thread instead of the thread of the callback caller.
+/* Here we use a trampoline technique to communicate events (onConnect, onDisconnect, onLog)
+ * between the backend and the GUI interface. Also, by using CallAfter(), the widgets are updated
+ * from the GUI main thread instead of the thread of backend.
  */
 void MyFrame::updateConnect(wxString ip)
 {
