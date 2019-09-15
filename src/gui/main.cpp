@@ -81,13 +81,16 @@ void MyFrame::onClickConnect(wxCommandEvent &event)
 	int		 id;
 	const char	*network;
 
-	button_1->Enable(false);
-
 	id = this->list_box_1->GetSelection();
-	wstr = this->list_box_1->GetString(id);
+	/* If nothing is selected yet, just do nothing */
+	if (id == -1)
+		return;
 
+	wstr = this->list_box_1->GetString(id);
 	network = wstr.mb_str(wxConvUTF8);
 	agent_thread_start(network);
+
+	button_1->Enable(false);
 }
 
 /*
