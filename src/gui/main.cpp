@@ -8,9 +8,10 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 {
 
 	const int ID_CONNECT = 1;
+	const int ID_DISCONNECT = 2;
 
 	SetSize(wxSize(625, 332));
-	SetTitle(wxT("frame"));
+	SetTitle(wxT("netvfy-agent"));
 
 	notebook_1 = new wxNotebook(this, wxID_ANY);
 	notebook_1_pane_1 = new wxPanel(notebook_1, wxID_ANY);
@@ -22,11 +23,11 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	wxStaticBitmap *bitmap_1 = new wxStaticBitmap(notebook_1_pane_1, wxID_ANY, wxNullBitmap);
 	sizer_5->Add(bitmap_1, 0, 0, 0);
 
-	static_text_1 = new wxStaticText(notebook_1_pane_1, wxID_ANY, wxT("Disconnected !"));
+	static_text_1 = new wxStaticText(notebook_1_pane_1, wxID_ANY, wxT("Not Connected."));
 
 	sizer_5->Add(static_text_1, 0, wxALIGN_CENTER, 0);
 
-	static_text_2 = new wxStaticText(notebook_1_pane_1, wxID_ANY, wxT("static_text_2"));
+	static_text_2 = new wxStaticText(notebook_1_pane_1, wxID_ANY, wxT(""));
 
 	sizer_5->Add(static_text_2, 0, wxALIGN_CENTER, 0);
 	wxStaticLine *static_line_1 = new wxStaticLine(notebook_1_pane_1, wxID_ANY);
@@ -45,17 +46,22 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 
 	sizer_4->Add(button_1, 0, 0, 0);
 
-	button_2 = new wxButton(notebook_1_pane_1, wxID_ANY, wxT("Disconnect"));
-
+	/* TODO (we don't need it for now)
+	button_2 = new wxButton(notebook_1_pane_1, ID_DISCONNECT, wxT("Disconnect!"));
+	Connect(ID_DISCONNECT, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MyFrame::onClickDisconnect));
 	sizer_4->Add(button_2, 0, 0, 0);
+	*/
 
 	notebook_1_Logactivity = new wxPanel(notebook_1, wxID_ANY);
 	notebook_1->AddPage(notebook_1_Logactivity, wxT("Log activity"));
 	wxBoxSizer *sizer_1 = new wxBoxSizer(wxVERTICAL);
 	text_ctrl_1 = new wxTextCtrl(notebook_1_Logactivity, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(500,300), wxTE_MULTILINE);
 	sizer_1->Add(text_ctrl_1, 0, wxEXPAND|wxSHAPED, 0);
+
+	/* TODO (we don't need it for now)
 	notebook_1_General = new wxPanel(notebook_1, wxID_ANY);
 	notebook_1->AddPage(notebook_1_General, wxT("General"));
+	*/
     
 	notebook_1_Logactivity->SetSizer(sizer_1);
 	notebook_1_pane_1->SetSizer(sizer_2);
@@ -75,6 +81,8 @@ void MyFrame::onClickConnect(wxCommandEvent &event)
 	int		 id;
 	const char	*network;
 
+	button_1->Enable(false);
+
 	id = this->list_box_1->GetSelection();
 	wstr = this->list_box_1->GetString(id);
 
@@ -82,13 +90,22 @@ void MyFrame::onClickConnect(wxCommandEvent &event)
 	agent_thread_start(network);
 }
 
+/*
+void MyFrame::onClickDisconnect(wxCommandEvent &event)
+{
+	agent_thread_fini();
+}
+*/
 
-// TODO makes it global for now.
 MyFrame *frame;
 
+/* Here we use a trampoline technique to communicated events (onConnect, onDisconnect, onLog)
+ * between the backend and the GUI interface. Also, byusing CallAfter(), the widgets are updated
+ * from the GUI main thread instead of the thread of the callback caller.
+ */
 void MyFrame::updateConnect(wxString ip)
 {
-	frame->static_text_1->SetLabel("Connected..");
+	frame->static_text_1->SetLabel("Now Connected");
 	frame->static_text_2->SetLabel(ip);
 }
 void MyFrame::onConnect(const char *ip)
@@ -96,9 +113,15 @@ void MyFrame::onConnect(const char *ip)
 	frame->CallAfter(&MyFrame::updateConnect, wxString::FromUTF8(ip));
 }
 
+void MyFrame::updateDisconnect()
+{
+	frame->static_text_1->SetLabel("Not Connected");
+	frame->static_text_2->SetLabel("");
+}
+
 void MyFrame::onDisconnect()
 {
-
+	frame->CallAfter(&MyFrame::updateDisconnect);
 }
 
 void MyFrame::updateLog(wxString logline)
@@ -108,10 +131,6 @@ void MyFrame::updateLog(wxString logline)
 
 void MyFrame::onLog(const char *logline)
 {
-	/* This callback is fired from another thread. By using CallAfter(),
-	 * the function updateLog() will be able to write the logline to the
-	 * text widget from the GUI thread.
-	 */
 	frame->CallAfter(&MyFrame::updateLog, wxString::FromUTF8(logline));
 }
 

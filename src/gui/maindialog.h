@@ -21,7 +21,13 @@ public:
 
 private:
 	void onClickConnect(wxCommandEvent &event);
+	/*void onClickDisconnect(wxCommandEvent &event);*/
+
+	/* Interface between backend thread and GUI thread,
+	 * these functions are called via CallAfter().
+	 */
 	void updateConnect(wxString ip);
+	void updateDisconnect();
 	void updateLog(wxString logline);
 protected:
 	wxNotebook	*notebook_1;
