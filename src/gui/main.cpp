@@ -1,49 +1,232 @@
-/*
- * NetVirt - Network Virtualization Platform
- * Copyright (C) 2009-2014
- * Nicolas J. Bouliane <admin@netvirt.org>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; version 3
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- */
-
-#include <QApplication>
-#include <QStyle>
-
-#if __APPLE__
-#include <libgen.h>
-#include <unistd.h>
-#endif
+#include <wx/event.h>
 
 #include "maindialog.h"
-
 #include "../agent.h"
 
-int main(int argc, char *argv[])
+MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
+    wxFrame(parent, id, title, pos, size, wxDEFAULT_FRAME_STYLE)
 {
-	#if __APPLE__
-		/* On Mac OS, the current directory is /, but the
-		 * config file is beside the executable.
-		 */
-		char *executable_path = dirname(argv[0]);
-		chdir(executable_path);
-	#endif
+	const int ID_CONNECT = 1;
+	const int ID_DISCONNECT = 2;
+	const int ID_ADD_NETWORK = 3;
+	const int ID_DELETE_NETWORK = 4;
 
+	SetSize(wxSize(430, 270));
+	SetTitle(wxT("netvfy-agent"));
+
+	notebook_1 = new wxNotebook(this, wxID_ANY);
+	notebook_1_pane_1 = new wxPanel(notebook_1, wxID_ANY);
+	notebook_1->AddPage(notebook_1_pane_1, wxT("Account"));
+
+	wxBoxSizer *sizer_2 = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer *sizer_3 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *sizer_4 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *sizer_5 = new wxBoxSizer(wxVERTICAL);
+
+	static_text_1 = new wxStaticText(notebook_1_pane_1,
+		wxID_ANY, wxT("Not Connected."));
+	static_text_2 = new wxTextCtrl(notebook_1_pane_1, wxID_ANY,
+		wxEmptyString, wxDefaultPosition, wxSize(-1,-1), wxTE_READONLY | wxNO_BORDER);
+	static_text_2->SetBackgroundColour(this->GetBackgroundColour());
+
+	list_box_1 = new wxListBox(notebook_1_pane_1, wxID_ANY, wxDefaultPosition);
+	list_box_1->SetMinSize(wxSize(300, 150));
+
+	button_1 = new wxButton(notebook_1_pane_1, ID_CONNECT, wxT("Connect"));
+	Connect(ID_CONNECT, wxEVT_COMMAND_BUTTON_CLICKED,
+		wxCommandEventHandler(MyFrame::onClickConnect));
+
+	button_2 = new wxButton(notebook_1_pane_1, ID_ADD_NETWORK, wxT("Add"));
+	Connect(ID_ADD_NETWORK, wxEVT_COMMAND_BUTTON_CLICKED,
+		wxCommandEventHandler(MyFrame::onClickAddNetwork));
+
+	button_3 = new wxButton(notebook_1_pane_1, ID_DELETE_NETWORK, wxT("Delete"));
+	Connect(ID_DELETE_NETWORK, wxEVT_COMMAND_BUTTON_CLICKED,
+		wxCommandEventHandler(MyFrame::onClickDeleteNetwork));
+
+	/* The order the widgets are added to the sizers is important */
+	sizer_2->Add(sizer_3, 1, wxEXPAND, 0);
+	sizer_2->Add(sizer_4, 1, wxEXPAND, 0);
+
+	sizer_3->Add(static_text_1, 1, wxALIGN_CENTER, 0);
+	sizer_3->Add(static_text_2, 1, wxALIGN_CENTER, 0);
+
+	sizer_4->Add(list_box_1, 0, 0, 0);
+	sizer_4->Add(sizer_5, 1, wxEXPAND, 0);
+
+	sizer_5->Add(button_1, 1, wxALIGN_CENTER, 0);
+	sizer_5->Add(button_2, 0, wxALIGN_CENTER, 0);
+	sizer_5->Add(button_3, 0, wxALIGN_CENTER, 0);
+
+	/* TODO (we don't need it for now)
+	button_2 = new wxButton(notebook_1_pane_1, ID_DISCONNECT, wxT("Disconnect!"));
+	Connect(ID_DISCONNECT, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MyFrame::onClickDisconnect));
+	sizer_4->Add(button_2, 0, 0, 0);
+	*/
+
+	notebook_1_Logactivity = new wxPanel(notebook_1, wxID_ANY);
+	notebook_1->AddPage(notebook_1_Logactivity, wxT("Log activity"));
+	wxBoxSizer *sizer_1 = new wxBoxSizer(wxVERTICAL);
+	text_ctrl_1 = new wxTextCtrl(notebook_1_Logactivity, wxID_ANY,
+		wxEmptyString, wxDefaultPosition, wxSize(500,300), wxTE_MULTILINE);
+	sizer_1->Add(text_ctrl_1, 0, wxEXPAND|wxSHAPED, 0);
+
+	/* TODO (we don't need it for now)
+	notebook_1_General = new wxPanel(notebook_1, wxID_ANY);
+	notebook_1->AddPage(notebook_1_General, wxT("General"));
+	*/
+    
+	notebook_1_Logactivity->SetSizer(sizer_1);
+	notebook_1_pane_1->SetSizer(sizer_2);
+	Layout();
+}
+
+class MyApp: public wxApp {
+public:
+	bool OnInit();
+};
+
+IMPLEMENT_APP(MyApp)
+
+void MyFrame::onClickConnect(wxCommandEvent &event)
+{
+	wxString	 wstr;
+	int		 id;
+	const char	*network;
+
+	id = this->list_box_1->GetSelection();
+	/* If nothing is selected yet, just do nothing */
+	if (id == -1)
+		return;
+
+	wstr = this->list_box_1->GetString(id);
+	network = wstr.mb_str(wxConvUTF8);
+	agent_thread_start(network);
+
+	button_1->Enable(false);
+}
+
+void MyFrame::onClickAddNetwork(wxCommandEvent &event)
+{
+	wxString	 	 provkey;
+	wxString		 network;
+	wxTextEntryDialog	 myDialog1(this, "Enter provisioning key:", "Add new network", "");
+	wxTextEntryDialog	 myDialog2(this, "Choose the network name:", "Add new network", "");
+
+	if (myDialog1.ShowModal() == wxID_OK) {
+		provkey = myDialog1.GetValue();
+	} else {
+		return;
+	}
+
+	if (myDialog2.ShowModal() == wxID_OK) {
+		network = myDialog2.GetValue();
+	} else {
+		return;
+	}
+
+	/* Strip " " around the provisioning key */
+	provkey.Replace("\"", "", true);
+
+	ndb_provisioning(provkey.mb_str(wxConvUTF8), network.mb_str(wxConvUTF8));
+
+	/* Update the list of network */
+	this->list_box_1->Clear();
+	ndb_networks(this->onListNetworks);
+}
+
+void MyFrame::onClickDeleteNetwork(wxCommandEvent &event)
+{
+	wxString	 wstr;
+	int		 id;
+	const char	*network;
+
+	id = this->list_box_1->GetSelection();
+	/* If nothing is selected yet, just do nothing */
+	if (id == -1)
+		return;
+
+	wstr = this->list_box_1->GetString(id);
+	network = wstr.mb_str(wxConvUTF8);
+
+	wxMessageDialog *myDialog1 = new wxMessageDialog(NULL,
+		network, wxT("Are you sure you want to delete this network ?"),
+		wxYES_NO | wxNO_DEFAULT | wxICON_EXCLAMATION);
+	if (myDialog1->ShowModal() != wxID_YES) {
+		return;
+	}
+
+	ndb_network_remove(network);
+
+	/* Update the list of network */
+	this->list_box_1->Clear();
+	ndb_networks(this->onListNetworks);
+}
+
+/*
+void MyFrame::onClickDisconnect(wxCommandEvent &event)
+{
+	agent_thread_fini();
+}
+*/
+
+MyFrame *frame;
+
+/* Here we use a trampoline technique to communicate events (onConnect, onDisconnect, onLog)
+ * between the backend and the GUI interface. Also, by using CallAfter(), the widgets are updated
+ * from the GUI main thread instead of the thread of backend.
+ */
+void MyFrame::updateConnect(wxString ip)
+{
+	frame->static_text_1->SetLabel("Now Connected");
+	frame->static_text_2->SetLabel(ip);
+}
+void MyFrame::onConnect(const char *ip)
+{
+	frame->CallAfter(&MyFrame::updateConnect, wxString::FromUTF8(ip));
+}
+
+void MyFrame::updateDisconnect()
+{
+	frame->static_text_1->SetLabel("Not Connected");
+	frame->static_text_2->SetLabel("");
+}
+
+void MyFrame::onDisconnect()
+{
+	frame->CallAfter(&MyFrame::updateDisconnect);
+}
+
+void MyFrame::updateLog(wxString logline)
+{
+	frame->text_ctrl_1->AppendText(logline);
+}
+
+void MyFrame::onLog(const char *logline)
+{
+	frame->CallAfter(&MyFrame::updateLog, wxString::FromUTF8(logline));
+}
+
+void MyFrame::onListNetworks(const char *network)
+{
+	frame->list_box_1->Append( wxString::FromAscii(network));
+}
+
+bool MyApp::OnInit()
+{
 	ndb_init();
 	agent_init_cb();
 
-	QApplication app(argc, argv);
-	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-	app.setStyle("fusion");
+	wxInitAllImageHandlers();
+	frame = new MyFrame(NULL, wxID_ANY, wxEmptyString);
+	SetTopWindow(frame);
 
-	MainDialog s;
+	agent_cb->connected = frame->onConnect;
+	agent_cb->disconnected = frame->onDisconnect;
+	agent_cb->log = frame->onLog;
 
-	return app.exec();
+	ndb_networks(frame->onListNetworks);
+
+	frame->Show();
+	return true;
 }

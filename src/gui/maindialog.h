@@ -1,75 +1,48 @@
-/*
- * NetVirt - Network Virtualization Platform
- * Copyright (C) 2009-2014
- * Nicolas J. Bouliane <admin@netvirt.org>
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; version 3
- * of the License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- */
+#ifndef WXGLADE_OUT_H
+#define WXGLADE_OUT_H
 
-#ifndef MAINDIALOG_H
-#define MAINDIALOG_H
+#include <wx/wx.h>
+#include <wx/image.h>
 
-#include <QDesktopWidget>
-#include <QDialog>
-#include <QMessageBox>
-#include <QSize>
-#include <QString>
-#include <QSystemTrayIcon>
+#include <wx/notebook.h>
+#include <wx/statline.h>
 
-#include "ui_maindialog.h"
+class MyFrame: public wxFrame {
+public:
+	MyFrame(wxWindow *parent, wxWindowID id, const wxString &title,
+		const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize,
+		long style=wxDEFAULT_FRAME_STYLE);
 
-class AccountSettings;
-class LogSettings;
-class GeneralSettings;
+	/* Interface between C backend and WX GUI */
+	static void onListNetworks(const char *);
+	static void onConnect(const char *);
+	static void onDisconnect();
+	static void onLog(const char *);
 
-class MainDialog: public QDialog
-{
-	Q_OBJECT
+private:
+	void onClickConnect(wxCommandEvent &event);
+	void onClickAddNetwork(wxCommandEvent &event);
+	void onClickDeleteNetwork(wxCommandEvent &event);
+	/*void onClickDisconnect(wxCommandEvent &event);*/
 
-	public:
-		MainDialog();
-		virtual ~MainDialog();
-
-		/* Interface between C backend and Qt GUI */
-		static void onLog(const char *);
-		static void onConnect(const char *ip);
-		static void onDisconnect();
-		static void onListNetworks(const char *network);
-
-	public slots:
-		void slotExit();
-		void slotToggleAutoConnect(int);
-		void slotAddNetwork();
-		void slotDeleteNetwork();
-		void slotResetNetworkList();
-		void slotResetAccount();
-		void trayIconClicked(QSystemTrayIcon::ActivationReason);
-
-	private:
-		Ui::MainDialog ui;
-
-		AccountSettings *accountSettings;
-		LogSettings *logSettings;
-		GeneralSettings *generalSettings;
-
-		QString ProvKey;
-		QSystemTrayIcon *trayIcon;
-	
-		void NowRun();	
-		void createTrayIcon();
-		void setTrayIcon();
-
-		/* Override the window's close event */
-		void closeEvent(QCloseEvent *);
-		void centerWidget(QWidget *w);
+	/* Interface between backend thread and GUI thread,
+	 * these functions are called via CallAfter().
+	 */
+	void updateConnect(wxString ip);
+	void updateDisconnect();
+	void updateLog(wxString logline);
+protected:
+	wxNotebook	*notebook_1;
+	wxPanel		*notebook_1_pane_1;
+	wxListBox	*list_box_1;
+	wxButton	*button_1;
+	wxButton	*button_2;
+	wxButton	*button_3;
+	wxPanel		*notebook_1_Logactivity;
+	wxTextCtrl	*text_ctrl_1;
+	wxPanel		*notebook_1_General;
+	wxStaticText	*static_text_1;
+	wxTextCtrl	*static_text_2;
 };
 
-#endif // MAINDIALOG
+#endif

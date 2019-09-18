@@ -4,29 +4,26 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 add_subdirectory(tests)
 
-if(APPLE AND EXISTS /usr/local/opt/qt5)
-	# Homebrew installs Qt5 (up to at least 5.9.1) in
-	# /usr/local/qt5, ensure it can be found by CMake since
-	# it is not in the default /usr/local prefix.
-	list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt5")
-endif()
-
 if (APPLE)
-  if (NOT OPENSSL_ROOT_DIR)
-    set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
-  endif()
-  include_directories("${OPENSSL_ROOT_DIR}/include")
-  link_directories("${OPENSSL_ROOT_DIR}/lib")
+	if (NOT OPENSSL_ROOT_DIR)
+		set(OPENSSL_ROOT_DIR /usr/local/opt/openssl)
+	endif()
+	include_directories("${OPENSSL_ROOT_DIR}/include")
+	link_directories("${OPENSSL_ROOT_DIR}/lib")
 endif()
 
 if (NOT TAPCFG_ROOT_DIR)
-  set(TAPCFG_ROOT_DIR ${CMAKE_SOURCE_DIR}/tapcfg)
+	set(TAPCFG_ROOT_DIR ${CMAKE_SOURCE_DIR}/tapcfg)
 endif()
 
 include_directories("${TAPCFG_ROOT_DIR}/src/include/")
 
 if (WIN32)
-	include_directories("${LIBCURL_ROOT_DIR}/include/"  "${LIBRESSL_ROOT_DIR}/include/" "${LIBEVENT_ROOT_DIR}/include/" "${LIBJANSSON_ROOT_DIR}/src/" "${CMAKE_SOURCE_DIR}/libnv/src/")
+	include_directories("${LIBCURL_ROOT_DIR}/include/"
+		"${LIBRESSL_ROOT_DIR}/include/"
+		"${LIBEVENT_ROOT_DIR}/include/"
+		"${LIBJANSSON_ROOT_DIR}/src/"
+		"${CMAKE_SOURCE_DIR}/libnv/src/")
 	set (win_rc_icon gui/rc/icon.rc)
 else()
 	set (win_rc_icon "")
@@ -44,45 +41,35 @@ message(STATUS "CMAKE_SOURCE_DIR" ${CMAKE_SOURCE_DIR})
 link_directories("${TAPCFG_ROOT_DIR}/build")
 
 if (WITH_GUI)
-	add_definitions( -DQT_EDITION=QT_EDITION_OPENSOURCE )
-	find_package(Qt5 COMPONENTS Widgets Core Gui Network REQUIRED)
-	set(gui_sources
-                gui/main.cpp
-		gui/maindialog.cpp
-		gui/accountsettings.cpp
-		gui/logsettings.cpp
-		gui/generalsettings.cpp)
 
-	set(gui_headers
-		gui/maindialog.h
-		gui/accountsettings.h
-		gui/logsettings.h
-		gui/generalsettings.h)
+	set(gui_sources gui/main.cpp)
 
-	QT5_ADD_RESOURCES(gui_rccs_srcs "./gui/nvagent.qrc")
-	QT5_WRAP_CPP(gui_headers_moc ${gui_headers})
-	QT5_WRAP_UI(gui_form_headers
-			gui/maindialog.ui
-			gui/accountsettings.ui
-			gui/logsettings.ui
-			gui/generalsettings.ui)
-
-	add_definitions(${QT5_DEFINITIONS})
-
-	add_executable(netvfy-agent MACOSX_BUNDLE WIN32 ${nvagent_sources} ${gui_sources} ${gui_headers_moc} ${gui_form_headers} ${gui_rccs_srcs} ${win_rc_icon})
+	include_directories("${CMAKE_SOURCE_DIR}/wx/include/")
+	add_executable(netvfy-agent ${nvagent_sources} ${gui_sources})
+	set_target_properties(netvfy-agent PROPERTIES LINK_FLAGS "-mwindows")
 
 	if (WIN32)
-		set_target_properties(netvfy-agent PROPERTIES LINK_FLAGS "-mwindows")
+		set(GUI_LIBS
+			"${CMAKE_SOURCE_DIR}/wx/lib/gcc810_dll/libwxbase31u.a"
+			"${CMAKE_SOURCE_DIR}/wx/lib/gcc810_dll/libwxmsw31u_core.a")
 	elseif (APPLE)
-		set_target_properties(netvfy-agent PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/gui/Info.plist)
+
+		# TODO use output to set flags
+		# ${CMAKE_SOURCE_DIR}/wx/build-cocoa-debug/wx-config --cxxflags
+		# ${CMAKE_SOURCE_DIR}/wx/build-cocoa-debug/wx-config --libs core
+
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+			-I${CMAKE_SOURCE_DIR}/wx/build-cocoa-debug/lib/wx/include/osx_cocoa-unicode-3.1 \
+			-I${CMAKE_SOURCE_DIR}/wx/include \
+			-D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXMAC__ -D__WXOSX__ -D__WXOSX_COCOA__")
+
+		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} \
+			-L${CMAKE_SOURCE_DIR}/wx/build-cocoa-debug/lib \
+			-framework IOKit -framework Carbon -framework Cocoa \
+			-framework AudioToolbox -framework System -framework OpenGL -lwx_osx_cocoau_core-3.1 -lwx_baseu-3.1")
 	endif()
-
-	target_link_libraries(netvfy-agent Qt5::Widgets Qt5::Network ${QT5_LIBRARIES} pthread)
-
 else()
-	set(cli_sources
-		cli/main.c)
-
+	set(cli_sources cli/main.c)
 	add_executable(netvfy-agent MACOSX_BUNDLE ${nvagent_sources} ${cli_sources})
 endif()
 
@@ -96,10 +83,8 @@ if (APPLE)
 		jansson
 		event_core
 		event_extra
-		event_openssl
-	)
+		event_openssl)
 elseif (WIN32)
-
 	file(GLOB LIBS_FOR_WIN32
 		${LIBCURL_ROOT_DIR}/lib/.libs/libcurl*dll
 		${LIBRESSL_ROOT_DIR}/ssl/.libs/libssl*dll
@@ -113,7 +98,7 @@ elseif (WIN32)
 		${LIBS_FOR_WIN32}
 		${OPENSSL_LIBRARIES}
 		${TAPCFG_ROOT_DIR}/build/tapcfg.dll
-	)
+		${GUI_LIBS})
 else()
 	target_link_libraries(netvfy-agent
 		curl
@@ -124,14 +109,12 @@ else()
 		event_core
 		event_extra
 		event_openssl
-		jansson
-	)
+		jansson)
 endif()
 
 install(TARGETS netvfy-agent
     BUNDLE DESTINATION . COMPONENT Runtime
-    RUNTIME DESTINATION bin COMPONENT Runtime
-    )
+    RUNTIME DESTINATION bin COMPONENT Runtime)
 
 if (APPLE)
     set(APPS "\${CMAKE_INSTALL_PREFIX}/${apple_package}")
@@ -150,4 +133,4 @@ if (APPLE)
             fixup_bundle(\"${APPS}\" \"\${QTPLUGINS}\" \"${DIRS}\")
             " COMPONENT Runtime)
     endif()
-endif ()
+endif()
