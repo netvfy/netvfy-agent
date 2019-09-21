@@ -44,14 +44,14 @@ if (WITH_GUI)
 
 	set(gui_sources gui/main.cpp)
 
-	include_directories("${CMAKE_SOURCE_DIR}/wx/include/")
+	include_directories("${WX_ROOT_DIR}/include/")
 	add_executable(netvfy-agent ${nvagent_sources} ${gui_sources})
 	set_target_properties(netvfy-agent PROPERTIES LINK_FLAGS "-mwindows")
 
 	if (WIN32)
 		set(GUI_LIBS
-			"${CMAKE_SOURCE_DIR}/wx/lib/gcc810_dll/libwxbase31u.a"
-			"${CMAKE_SOURCE_DIR}/wx/lib/gcc810_dll/libwxmsw31u_core.a")
+			"${WX_ROOT_DIR}/lib/gcc810_dll/libwxbase31u.a"
+			"${WX_ROOT_DIR}/lib/gcc810_dll/libwxmsw31u_core.a")
 	elseif (APPLE)
 
 		# TODO use output to set flags
@@ -95,6 +95,7 @@ elseif (WIN32)
 	target_link_libraries(netvfy-agent
 		ws2_32
 		nv
+		pthread
 		${LIBS_FOR_WIN32}
 		${OPENSSL_LIBRARIES}
 		${TAPCFG_ROOT_DIR}/build/tapcfg.dll
