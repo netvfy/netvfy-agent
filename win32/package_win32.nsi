@@ -7,9 +7,6 @@
 !ifndef OPENSSL_PATH
 	!define OPENSSL_PATH /opt/mingw32/mingw32/bin
 !endif
-!ifndef QT_PATH
-	!define QT_PATH /media/nib/Windows7_OS/Qt/4.8.4
-!endif
 
 # Define the path of the build directory
 !ifndef BDIR
@@ -22,8 +19,8 @@ SetCompressor /FINAL /SOLID lzma
 ; Include Modern UI
 	!include "MUI2.nsh"
 
-	!define MUI_ICON "../nvagent/src/gui/rc/nvagent.ico"
-	!define MUI_UNICON "../nvagent/src/gui/rc/nvagent.ico"
+	!define MUI_ICON "../src/gui/rc/nvagent.ico"
+	!define MUI_UNICON "../src/gui/rc/nvagent.ico"
 
 	!define MUI_HEADERIMAGE
 	!define MUI_HEADERIMAGE_RIGH
@@ -37,9 +34,12 @@ SetCompressor /FINAL /SOLID lzma
 ; General
 	!include "x64.nsh"
 	!define /date NOW "%y.%m.%d"
-	Name "NetVirt Agent"
-	OutFile "${BDIR}/netvirt-agent-${NOW}_x86.exe"
-	InstallDir $PROGRAMFILES\netvirt-agent
+	Name "Netvfy Agent GUI"
+	!ifndef OUTFILE
+		!define OUTFILE "${BDIR}/netvfy-agent-gui-${NOW}_x86.exe"
+	!endif
+	OutFile "${OUTFILE}"
+	InstallDir $PROGRAMFILES\netvfy-agent-gui
 
 	; Ask admin privileges
 	RequestExecutionLevel admin
@@ -56,7 +56,7 @@ SetCompressor /FINAL /SOLID lzma
 	; Start Menu Folder Page Configuration
 	Var StartMenuFolder
 	!define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU"
-	!define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\netvirt-agent"
+	!define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\netvfy-agent"
 	!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
 	!insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
 
@@ -72,40 +72,37 @@ SetCompressor /FINAL /SOLID lzma
 
 ;-------------------
 ; Installer section
-	Section "NetVirt Agent"
+	Section "Netvfy Agent GUI"
 		setOutPath $INSTDIR
 
-		File ${BDIR}/nvagent/src/netvirt-agent.exe
-		File ${UDT4_PATH}/src/libudt.dll
-		File ${LIBCONFIG_PATH}/lib/.libs/libconfig-9.dll
+		File ${BDIR}/src/netvfy-agent.exe
 		File ${TAPCFG_PATH}/build/tapcfg.dll
 		File ${MINGW_PATH}/libgcc_s_sjlj-1.dll
 		File ${MINGW_PATH}/libstdc++-6.dll
 		File ${MINGW_PATH}/libssp-0.dll
-		File ${PTHREAD_PATH}/pthreadGC2.dll
-		File ${OPENSSL_PATH}/libeay32.dll
-		File ${OPENSSL_PATH}/ssleay32.dll
-		File ${QT_PATH}/bin/libgcc_s_dw2-1.dll
-		File ${QT_PATH}/bin/mingwm10.dll
-		File ${QT_PATH}/bin/QtCore4.dll
-		File ${QT_PATH}/bin/QtGui4.dll
-		File ${QT_PATH}/bin/QtNetwork4.dll
+		File /usr/i686-w64-mingw32/lib/libwinpthread-1.dll
+		File ${LIBRESSL_PATH}/ssl/.libs/libssl-47.dll
+		File ${LIBRESSL_PATH}/crypto/.libs/libcrypto-45.dll
+		File ${LIBEVENT_PATH}/.libs/libevent-2-0-5.dll
+		File ${LIBEVENT_PATH}/.libs/libevent_core-2-0-5.dll
+		File ${LIBEVENT_PATH}/.libs/libevent_extra-2-0-5.dll
+		File ${LIBEVENT_PATH}/.libs/libevent_openssl-2-0-5.dll
+		File ${LIBJANSSON_PATH}/src/.libs/libjansson-4.dll
+		File ${LIBCURL_PATH}/lib/.libs/libcurl-4.dll
+		File ${LIBWX_PATH}/lib/gcc810_dll/wxbase312u_gcc810.dll
+		File ${LIBWX_PATH}/lib/gcc810_dll/wxmsw312u_core_gcc810.dll
+		File /oname=curl-ca-bundle.crt ${LIBCURL_PATH}/lib/ca-bundle.crt
 
-		CreateDirectory $INSTDIR\imageformats
-		setOutPath $INSTDIR\imageformats
-		File ${QT_PATH}/plugins/imageformats/qgif4.dll
-		File ${QT_PATH}/plugins/imageformats/qico4.dll
-
-		CreateDirectory $APPDATA\netvirt\default
+		CreateDirectory $APPDATA\netvfy\default
 
 		; Create uninstaller
-		WriteUninstaller "$INSTDIR\netvirt-agent-uninstall.exe"
+		WriteUninstaller "$INSTDIR\netvfy-agent-uninstall.exe"
 
 		!insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 			CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-			CreateShortCut  "$DESKTOP\netvirt-agent.lnk" "$INSTDIR\netvirt-agent.exe"
-			CreateShortCut  "$SMPROGRAMS\$StartMenuFolder\netvirt-agent.lnk" "$INSTDIR\netvirt-agent.exe"
-			CreateShortCut  "$SMPROGRAMS\$StartMenuFolder\netvirt-agent-uninstall.lnk" "$INSTDIR\netvirt-agent-uninstall.exe"
+			CreateShortCut  "$DESKTOP\netvfy-agent.lnk" "$INSTDIR\netvfy-agent.exe"
+			CreateShortCut  "$SMPROGRAMS\$StartMenuFolder\netvfy-agent.lnk" "$INSTDIR\netvfy-agent.exe"
+			CreateShortCut  "$SMPROGRAMS\$StartMenuFolder\netvfy-agent-uninstall.lnk" "$INSTDIR\netvfy-agent-uninstall.exe"
 		!insertmacro MUI_STARTMENU_WRITE_END
 
 		; Update icons cache
@@ -135,24 +132,21 @@ SetCompressor /FINAL /SOLID lzma
 ;---------------------
 ; Uninstaller section
 	Section "Uninstall"
-		Delete "$INSTDIR\imageformats\*"
-		RMDir "$INSTDIR\imageformats"
-
 		Delete "$INSTDIR\*"
 		RMDir "$INSTDIR"
 
-		Delete "$APPDATA\netvirt\*"
-		RMDir "$APPDATA\netvirt"
+		Delete "$APPDATA\netvfy\*"
+		RMDir "$APPDATA\netvfy"
 
 		!insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
-		Delete "$DESKTOP\netvirt-agent.lnk"
-		Delete "$SMPROGRAMS\$StartMenuFolder\netvirt-agent.lnk"
-		Delete "$SMPROGRAMS\$StartMenuFolder\netvirt-agent-uninstall.lnk"
+		Delete "$DESKTOP\netvfy-agent.lnk"
+		Delete "$SMPROGRAMS\$StartMenuFolder\netvfy-agent.lnk"
+		Delete "$SMPROGRAMS\$StartMenuFolder\netvfy-agent-uninstall.lnk"
 		RMDir "$SMPROGRAMS\$StartMenuFolder"
 
 		StrCpy $2 $INSTDIR "" 3
 		Delete "$LOCALAPPDATA\VirtualStore\$2\*"
 		RMDir "$LOCALAPPDATA\VirtualStore\$2"
 
-		DeleteRegKey /ifempty HKCU "Software\netvirt-agent"
+		DeleteRegKey /ifempty HKCU "Software\netvfy-agent"
 	SectionEnd
