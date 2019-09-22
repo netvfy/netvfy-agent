@@ -19,7 +19,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	notebook_1->AddPage(notebook_1_pane_1, wxT("Account"));
 
 	wxBoxSizer *sizer_2 = new wxBoxSizer(wxVERTICAL);
-	wxBoxSizer *sizer_3 = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer *sizer_3 = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer *sizer_4 = new wxBoxSizer(wxHORIZONTAL);
 	wxBoxSizer *sizer_5 = new wxBoxSizer(wxVERTICAL);
 
@@ -48,8 +48,10 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_2->Add(sizer_3, 1, wxEXPAND, 0);
 	sizer_2->Add(sizer_4, 1, wxEXPAND, 0);
 
-	sizer_3->Add(static_text_1, 1, wxALIGN_CENTER, 0);
-	sizer_3->Add(static_text_2, 1, wxALIGN_CENTER, 0);
+	sizer_3->Add(10,10,0,0,0);
+	sizer_3->Add(static_text_1, 1, wxALIGN_LEFT, 5);
+	sizer_3->Add(static_text_2, 1, wxALIGN_LEFT, 0);
+	sizer_3->Add(10,10,0,0,0);
 
 	sizer_4->Add(list_box_1, 0, 0, 0);
 	sizer_4->Add(sizer_5, 1, wxEXPAND, 0);
