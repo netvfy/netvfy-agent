@@ -7,6 +7,8 @@
 #include <wx/notebook.h>
 #include <wx/statline.h>
 
+#define wxNETVFYDEFAULT (wxSYSTEM_MENU | wxCLOSE_BOX | wxCAPTION | wxCLIP_CHILDREN)
+
 class MyFrame: public wxFrame {
 public:
 	MyFrame(wxWindow *parent, wxWindowID id, const wxString &title,

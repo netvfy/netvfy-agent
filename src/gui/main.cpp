@@ -4,7 +4,7 @@
 #include "../agent.h"
 
 MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
-    wxFrame(parent, id, title, pos, size, wxDEFAULT_FRAME_STYLE)
+    wxFrame(parent, id, title, pos, size, wxNETVFYDEFAULT)
 {
 	const int ID_CONNECT = 1;
 	const int ID_DISCONNECT = 2;
