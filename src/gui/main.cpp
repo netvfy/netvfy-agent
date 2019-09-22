@@ -45,6 +45,11 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	Connect(ID_CONNECT, wxEVT_COMMAND_BUTTON_CLICKED,
 		wxCommandEventHandler(MyFrame::onClickConnect));
 
+	button_1_b = new wxButton(notebook_1_pane_1, ID_DISCONNECT, wxT("Disconnect!"));
+	Connect(ID_DISCONNECT, wxEVT_COMMAND_BUTTON_CLICKED,
+		wxCommandEventHandler(MyFrame::onClickDisconnect));
+	button_1_b->Enable(false);
+
 	button_2 = new wxButton(notebook_1_pane_1, ID_ADD_NETWORK, wxT("Add"));
 	Connect(ID_ADD_NETWORK, wxEVT_COMMAND_BUTTON_CLICKED,
 		wxCommandEventHandler(MyFrame::onClickAddNetwork));
@@ -71,6 +76,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 
 	sizer_5->Add(button_1, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(10,10,0,0,0);
+  sizer_5->Add(button_1_b, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(button_2, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(button_3, 0, wxALIGN_CENTER, 0);
 #ifdef WIN32
@@ -98,7 +104,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	notebook_1_General = new wxPanel(notebook_1, wxID_ANY);
 	notebook_1->AddPage(notebook_1_General, wxT("General"));
 	*/
-    
+
 	notebook_1_Logactivity->SetSizer(sizer_1);
 	notebook_1_pane_1->SetSizer(sizer_2);
 
@@ -137,6 +143,7 @@ void MyFrame::onClickConnect(wxCommandEvent &event)
 	agent_thread_start(network);
 
 	button_1->Enable(false);
+	button_1_b->Enable(true);
 }
 
 void MyFrame::onClickAddNetwork(wxCommandEvent &event)
@@ -209,12 +216,13 @@ void MyFrame::onClickExit(wxCommandEvent &event)
 	wxWindow::Destroy();
 }
 
-/*
 void MyFrame::onClickDisconnect(wxCommandEvent &event)
 {
 	agent_thread_fini();
+	button_1->Enable(true);
+	button_1_b->Enable(false);
 }
-*/
+
 
 void MyFrame::onClose(wxCloseEvent &event)
 {

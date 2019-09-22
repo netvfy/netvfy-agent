@@ -40,8 +40,8 @@ private:
 	void onClickAddNetwork(wxCommandEvent &event);
 	void onClickDeleteNetwork(wxCommandEvent &event);
 	void onClickExit(wxCommandEvent &event);
-	/*void onClickDisconnect(wxCommandEvent &event);*/
 	void onClose(wxCloseEvent &event);
+	void onClickDisconnect(wxCommandEvent &event);
 
 	/* Interface between backend thread and GUI thread,
 	 * these functions are called via CallAfter().
@@ -55,6 +55,7 @@ protected:
 	wxPanel		*notebook_1_pane_1;
 	wxListBox	*list_box_1;
 	wxButton	*button_1;
+	wxButton 	*button_1_b;
 	wxButton	*button_2;
 	wxButton	*button_3;
 	wxButton	*button_exit;
