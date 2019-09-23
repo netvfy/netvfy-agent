@@ -48,6 +48,8 @@ if (WITH_GUI)
 	add_executable(netvfy-agent ${nvagent_sources} ${gui_sources})
 	set_target_properties(netvfy-agent PROPERTIES LINK_FLAGS "-mwindows")
 
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-write-strings")
+
 	if (WIN32)
 		set(GUI_LIBS
 			"${WX_ROOT_DIR}/lib/gcc810_dll/libwxbase31u.a"

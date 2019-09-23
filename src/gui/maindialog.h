@@ -9,6 +9,17 @@
 
 #define wxNETVFYDEFAULT (wxSYSTEM_MENU | wxCLOSE_BOX | wxCAPTION | wxCLIP_CHILDREN)
 
+class MyTaskBarIcon: public wxTaskBarIcon
+{
+public:
+#if defined(__WXOSX__) && wxOSX_USE_COCOA
+	MyTaskBarIcon(wxTaskBarIconType iconType = wxTBI_DEFAULT_TYPE): wxTaskBarIcon(iconType) {}
+#else
+	MyTaskBarIcon() {}
+#endif
+	virtual wxMenu *CreatePopupMenu() wxOVERRIDE;
+};
+
 class MyFrame: public wxFrame {
 public:
 	MyFrame(wxWindow *parent, wxWindowID id, const wxString &title,
@@ -25,7 +36,9 @@ private:
 	void onClickConnect(wxCommandEvent &event);
 	void onClickAddNetwork(wxCommandEvent &event);
 	void onClickDeleteNetwork(wxCommandEvent &event);
+	void onClickExit(wxCommandEvent &event);
 	/*void onClickDisconnect(wxCommandEvent &event);*/
+	void onClose(wxCloseEvent &event);
 
 	/* Interface between backend thread and GUI thread,
 	 * these functions are called via CallAfter().
@@ -33,6 +46,7 @@ private:
 	void updateConnect(wxString ip);
 	void updateDisconnect();
 	void updateLog(wxString logline);
+
 protected:
 	wxNotebook	*notebook_1;
 	wxPanel		*notebook_1_pane_1;
@@ -40,11 +54,13 @@ protected:
 	wxButton	*button_1;
 	wxButton	*button_2;
 	wxButton	*button_3;
+	wxButton	*button_exit;
 	wxPanel		*notebook_1_Logactivity;
 	wxTextCtrl	*text_ctrl_1;
 	wxPanel		*notebook_1_General;
 	wxStaticText	*static_text_1;
 	wxTextCtrl	*static_text_2;
+	MyTaskBarIcon	*stray;
 };
 
 #endif
