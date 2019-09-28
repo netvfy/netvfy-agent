@@ -1,7 +1,12 @@
 #include <wx/event.h>
+#include <wx/taskbar.h>
 
 #include "maindialog.h"
 #include "../agent.h"
+
+#include "rc/nvagent_ico.xpm"
+
+static int	 systray_state = true;
 
 MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style):
     wxFrame(parent, id, title, pos, size, wxNETVFYDEFAULT)
@@ -10,8 +15,9 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	const int ID_DISCONNECT = 2;
 	const int ID_ADD_NETWORK = 3;
 	const int ID_DELETE_NETWORK = 4;
+	const int ID_EXIT = 5;
 
-	SetSize(wxSize(430, 270));
+	SetSize(wxSize(370, 270));
 	SetTitle(wxT("netvfy-agent"));
 
 	notebook_1 = new wxNotebook(this, wxID_ANY);
@@ -30,7 +36,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	static_text_2->SetBackgroundColour(this->GetBackgroundColour());
 
 	list_box_1 = new wxListBox(notebook_1_pane_1, wxID_ANY, wxDefaultPosition);
-	list_box_1->SetMinSize(wxSize(300, 150));
+	list_box_1->SetMinSize(wxSize(250, 150));
 
 	button_1 = new wxButton(notebook_1_pane_1, ID_CONNECT, wxT("Connect"));
 	Connect(ID_CONNECT, wxEVT_COMMAND_BUTTON_CLICKED,
@@ -44,6 +50,10 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	Connect(ID_DELETE_NETWORK, wxEVT_COMMAND_BUTTON_CLICKED,
 		wxCommandEventHandler(MyFrame::onClickDeleteNetwork));
 
+	button_exit = new wxButton(notebook_1_pane_1, ID_EXIT, wxT("Exit"));
+	Connect(ID_EXIT, wxEVT_COMMAND_BUTTON_CLICKED,
+		wxCommandEventHandler(MyFrame::onClickExit));
+
 	/* The order the widgets are added to the sizers is important */
 	sizer_2->Add(sizer_3, 1, wxEXPAND, 0);
 	sizer_2->Add(sizer_4, 1, wxEXPAND, 0);
@@ -56,9 +66,13 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_4->Add(list_box_1, 0, 0, 0);
 	sizer_4->Add(sizer_5, 1, wxEXPAND, 0);
 
-	sizer_5->Add(button_1, 1, wxALIGN_CENTER, 0);
+	sizer_5->Add(button_1, 0, wxALIGN_CENTER, 0);
+	sizer_5->Add(10,10,0,0,0);
 	sizer_5->Add(button_2, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(button_3, 0, wxALIGN_CENTER, 0);
+	sizer_5->Add(10,55,0,0,0);
+	sizer_5->Add(button_exit, 0, wxALIGN_CENTER, 0);
+
 
 	/* TODO (we don't need it for now)
 	button_2 = new wxButton(notebook_1_pane_1, ID_DISCONNECT, wxT("Disconnect!"));
@@ -80,6 +94,12 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
     
 	notebook_1_Logactivity->SetSizer(sizer_1);
 	notebook_1_pane_1->SetSizer(sizer_2);
+
+	stray = new MyTaskBarIcon();
+	stray->SetIcon(wxICON(nvagent_ico), wxString::FromUTF8("netvfy-agent"));
+
+	this->Connect(this->GetId(), wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::onClose));
+
 	Layout();
 }
 
@@ -165,6 +185,18 @@ void MyFrame::onClickDeleteNetwork(wxCommandEvent &event)
 	ndb_networks(this->onListNetworks);
 }
 
+void MyFrame::onClickExit(wxCommandEvent &event)
+{
+	wxMessageDialog	*myDialog = new wxMessageDialog(NULL,
+		"", wxT("Are you sure you want to exit ?"),
+		wxYES_NO | wxNO_DEFAULT | wxICON_EXCLAMATION);
+	if (myDialog->ShowModal() != wxID_YES) {
+		return;
+	}
+
+	wxWindow::Destroy();
+}
+
 /*
 void MyFrame::onClickDisconnect(wxCommandEvent &event)
 {
@@ -172,7 +204,32 @@ void MyFrame::onClickDisconnect(wxCommandEvent &event)
 }
 */
 
+void MyFrame::onClose(wxCloseEvent &event)
+{
+	if (systray_state) {
+		this->Hide();
+		systray_state = false;
+	} else {
+		this->Show();
+		systray_state = true;
+	}
+
+	event.Veto();
+}
+
 MyFrame *frame;
+wxMenu *MyTaskBarIcon::CreatePopupMenu()
+{
+	if (systray_state) {
+		frame->Hide();
+		systray_state = false;
+	} else {
+		frame->Show();
+		systray_state = true;
+	}
+
+	return NULL;
+}
 
 /* Here we use a trampoline technique to communicate events (onConnect, onDisconnect, onLog)
  * between the backend and the GUI interface. Also, by using CallAfter(), the widgets are updated
