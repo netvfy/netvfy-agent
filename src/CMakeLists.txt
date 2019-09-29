@@ -44,13 +44,8 @@ if (WITH_GUI)
 
 	set(gui_sources gui/main.cpp)
 
-	include_directories("${WX_ROOT_DIR}/include/")
-	add_executable(netvfy-agent ${nvagent_sources} ${gui_sources})
-	set_target_properties(netvfy-agent PROPERTIES LINK_FLAGS "-mwindows")
-
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-write-strings")
-
 	if (WIN32)
+		set(gui_sources ${gui_sources} gui/rc/icon.rc)
 		set(GUI_LIBS
 			"${WX_ROOT_DIR}/lib/gcc810_dll/libwxbase31u.a"
 			"${WX_ROOT_DIR}/lib/gcc810_dll/libwxmsw31u_core.a")
@@ -70,6 +65,12 @@ if (WITH_GUI)
 			-framework IOKit -framework Carbon -framework Cocoa \
 			-framework AudioToolbox -framework System -framework OpenGL -lwx_osx_cocoau_core-3.1 -lwx_baseu-3.1")
 	endif()
+
+	include_directories("${WX_ROOT_DIR}/include/")
+	add_executable(netvfy-agent ${nvagent_sources} ${gui_sources})
+	set_target_properties(netvfy-agent PROPERTIES LINK_FLAGS "-mwindows")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-write-strings")
+
 else()
 	set(cli_sources cli/main.c)
 	add_executable(netvfy-agent MACOSX_BUNDLE ${nvagent_sources} ${cli_sources})
