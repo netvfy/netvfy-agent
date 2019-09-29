@@ -19,7 +19,9 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 
 	SetSize(wxSize(370, 270));
 	SetTitle(wxT("netvfy-agent"));
+#ifdef WIN32
 	SetIcon(wxICON(AppIcon));
+#endif
 
 	notebook_1 = new wxNotebook(this, wxID_ANY);
 	notebook_1_pane_1 = new wxPanel(notebook_1, wxID_ANY);
