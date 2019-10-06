@@ -99,7 +99,11 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	notebook_1_pane_1->SetSizer(sizer_2);
 
 	stray = new MyTaskBarIcon();
+#ifdef WIN32
+	stray->SetIcon(wxICON(AppIcon), wxString::FromUTF8("netvfy-agent"));
+#else
 	stray->SetIcon(wxICON(nvagent_ico), wxString::FromUTF8("netvfy-agent"));
+#endif
 
 	this->Connect(this->GetId(), wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::onClose));
 
