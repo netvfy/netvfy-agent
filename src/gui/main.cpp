@@ -199,7 +199,7 @@ void MyFrame::onClickDeleteNetwork(wxCommandEvent &event)
 void MyFrame::onClickExit(wxCommandEvent &event)
 {
 	wxMessageDialog	*myDialog = new wxMessageDialog(NULL,
-		"", wxT("Are you sure you want to exit ?"),
+		wxT("Are you sure you want to exit ?"), wxT("Netvfy-Agent"),
 		wxYES_NO | wxNO_DEFAULT | wxICON_EXCLAMATION);
 	if (myDialog->ShowModal() != wxID_YES) {
 		return;
