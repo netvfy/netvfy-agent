@@ -770,6 +770,11 @@ error:
 	return;
 }
 
+void tapcfg_log(int level, char *msg)
+{
+	log_warnx("%s: %s", __func__, msg);
+}
+
 int
 control_init(const char *network_name)
 {
@@ -801,12 +806,12 @@ control_init(const char *network_name)
 		goto error;
 	}
 
+	tapcfg_set_log_callback(vlink->tapcfg, tapcfg_log);
+
 	if ((vlink->tapfd = tapcfg_start(vlink->tapcfg, "netvfy0", 1)) < 0) {
 		log_warnx("%s: tapcfg_start", __func__);
 		goto error;
 	}
-
-	// TODO tapcfg_set_log_callback(tapcfg_t *tapcfg, taplog_callback_t callback)
 
 	if ((vlink->netname = strdup(network_name)) == NULL) {
 		log_warn("%s: strdup", __func__);
