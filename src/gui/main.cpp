@@ -230,6 +230,22 @@ void MyFrame::onClose(wxCloseEvent &event)
 }
 
 MyFrame *frame;
+
+wxBEGIN_EVENT_TABLE(MyTaskBarIcon, wxTaskBarIcon)
+	EVT_TASKBAR_LEFT_DOWN (MyTaskBarIcon::onLeftButtonClick)
+wxEND_EVENT_TABLE()
+
+void MyTaskBarIcon::onLeftButtonClick(wxTaskBarIconEvent &event)
+{
+	if (systray_state) {
+		frame->Hide();
+		systray_state = false;
+	} else {
+		frame->Show();
+		systray_state = true;
+	}
+}
+
 wxMenu *MyTaskBarIcon::CreatePopupMenu()
 {
 	if (systray_state) {

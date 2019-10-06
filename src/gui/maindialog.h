@@ -17,7 +17,10 @@ public:
 #else
 	MyTaskBarIcon() {}
 #endif
+	void onLeftButtonClick(wxTaskBarIconEvent &event);
 	virtual wxMenu *CreatePopupMenu() wxOVERRIDE;
+
+	wxDECLARE_EVENT_TABLE();
 };
 
 class MyFrame: public wxFrame {
