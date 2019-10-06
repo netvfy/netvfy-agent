@@ -205,6 +205,7 @@ void MyFrame::onClickExit(wxCommandEvent &event)
 		return;
 	}
 
+	stray->Destroy();
 	wxWindow::Destroy();
 }
 
