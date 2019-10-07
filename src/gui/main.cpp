@@ -17,7 +17,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	const int ID_DELETE_NETWORK = 4;
 	const int ID_EXIT = 5;
 
-	SetSize(wxSize(370, 270));
+	SetSize(wxSize(370, 320));
 	SetTitle(wxT("netvfy-agent"));
 #ifdef WIN32
 	SetIcon(wxICON(AppIcon));
@@ -34,6 +34,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 
 	static_text_1 = new wxStaticText(notebook_1_pane_1,
 		wxID_ANY, wxT("Not Connected."));
+	// TODO(sneha): the static_text_2 height/width is a bit off and needs to be fixed
 	static_text_2 = new wxTextCtrl(notebook_1_pane_1, wxID_ANY,
 		wxEmptyString, wxDefaultPosition, wxSize(-1,-1), wxTE_READONLY | wxNO_BORDER);
 	static_text_2->SetBackgroundColour(this->GetBackgroundColour());
@@ -45,7 +46,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	Connect(ID_CONNECT, wxEVT_COMMAND_BUTTON_CLICKED,
 		wxCommandEventHandler(MyFrame::onClickConnect));
 
-	button_1_b = new wxButton(notebook_1_pane_1, ID_DISCONNECT, wxT("Disconnect!"));
+	button_1_b = new wxButton(notebook_1_pane_1, ID_DISCONNECT, wxT("Disconnect"));
 	Connect(ID_DISCONNECT, wxEVT_COMMAND_BUTTON_CLICKED,
 		wxCommandEventHandler(MyFrame::onClickDisconnect));
 	button_1_b->Enable(false);
@@ -67,7 +68,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_2->Add(sizer_4, 1, wxEXPAND, 0);
 
 	sizer_3->Add(10,10,0,0,0);
-	sizer_3->Add(static_text_1, 1, wxALIGN_LEFT, 5);
+	sizer_3->Add(static_text_1, 1, wxALIGN_LEFT, 0);
 	sizer_3->Add(static_text_2, 1, wxALIGN_LEFT, 0);
 	sizer_3->Add(10,10,0,0,0);
 
@@ -75,14 +76,14 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_4->Add(sizer_5, 1, wxEXPAND, 0);
 
 	sizer_5->Add(button_1, 0, wxALIGN_CENTER, 0);
+  	sizer_5->Add(button_1_b, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(10,10,0,0,0);
-  sizer_5->Add(button_1_b, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(button_2, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(button_3, 0, wxALIGN_CENTER, 0);
 #ifdef WIN32
 	sizer_5->Add(10,35,0,0,0);
 #else
-	sizer_5->Add(10,55,0,0,0);
+	sizer_5->Add(10,35,0,0,0);
 #endif
 	sizer_5->Add(button_exit, 0, wxALIGN_CENTER, 0);
 
