@@ -73,7 +73,11 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_5->Add(10,10,0,0,0);
 	sizer_5->Add(button_2, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(button_3, 0, wxALIGN_CENTER, 0);
+#ifdef WIN32
+	sizer_5->Add(10,35,0,0,0);
+#else
 	sizer_5->Add(10,55,0,0,0);
+#endif
 	sizer_5->Add(button_exit, 0, wxALIGN_CENTER, 0);
 
 
@@ -99,7 +103,11 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	notebook_1_pane_1->SetSizer(sizer_2);
 
 	stray = new MyTaskBarIcon();
+#ifdef WIN32
+	stray->SetIcon(wxICON(AppIcon), wxString::FromUTF8("netvfy-agent"));
+#else
 	stray->SetIcon(wxICON(nvagent_ico), wxString::FromUTF8("netvfy-agent"));
+#endif
 
 	this->Connect(this->GetId(), wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::onClose));
 
@@ -191,12 +199,13 @@ void MyFrame::onClickDeleteNetwork(wxCommandEvent &event)
 void MyFrame::onClickExit(wxCommandEvent &event)
 {
 	wxMessageDialog	*myDialog = new wxMessageDialog(NULL,
-		"", wxT("Are you sure you want to exit ?"),
+		wxT("Are you sure you want to exit ?"), wxT("Netvfy-Agent"),
 		wxYES_NO | wxNO_DEFAULT | wxICON_EXCLAMATION);
 	if (myDialog->ShowModal() != wxID_YES) {
 		return;
 	}
 
+	stray->Destroy();
 	wxWindow::Destroy();
 }
 
@@ -221,6 +230,22 @@ void MyFrame::onClose(wxCloseEvent &event)
 }
 
 MyFrame *frame;
+
+wxBEGIN_EVENT_TABLE(MyTaskBarIcon, wxTaskBarIcon)
+	EVT_TASKBAR_LEFT_DOWN (MyTaskBarIcon::onLeftButtonClick)
+wxEND_EVENT_TABLE()
+
+void MyTaskBarIcon::onLeftButtonClick(wxTaskBarIconEvent &event)
+{
+	if (systray_state) {
+		frame->Hide();
+		systray_state = false;
+	} else {
+		frame->Show();
+		systray_state = true;
+	}
+}
+
 wxMenu *MyTaskBarIcon::CreatePopupMenu()
 {
 	if (systray_state) {
