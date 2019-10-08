@@ -223,6 +223,13 @@ void MyFrame::onClickExit(wxCommandEvent &event)
 
 void MyFrame::onClickDisconnect(wxCommandEvent &event)
 {
+	wxMessageDialog	*myDialog = new wxMessageDialog(NULL,
+		wxT("Are you sure you want to disconnect ?"), wxT("Netvfy-Agent"),
+		wxYES_NO | wxNO_DEFAULT | wxICON_EXCLAMATION);
+	if (myDialog->ShowModal() != wxID_YES) {
+		return;
+	}
+
 	this->static_text_1->SetLabel("Disconnecting...");
 	this->static_text_2->SetLabel("");
 
