@@ -75,7 +75,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_4->Add(sizer_5, 1, wxEXPAND, 0);
 
 	sizer_5->Add(button_1, 0, wxALIGN_CENTER, 0);
-  	sizer_5->Add(button_1_b, 0, wxALIGN_CENTER, 0);
+	sizer_5->Add(button_1_b, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(10,10,0,0,0);
 	sizer_5->Add(button_2, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(button_3, 0, wxALIGN_CENTER, 0);
