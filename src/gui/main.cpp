@@ -17,7 +17,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	const int ID_DELETE_NETWORK = 4;
 	const int ID_EXIT = 5;
 
-	SetSize(wxSize(370, 320));
+	SetSize(wxSize(370, 270));
 	SetTitle(wxT("netvfy-agent"));
 #ifdef WIN32
 	SetIcon(wxICON(AppIcon));
