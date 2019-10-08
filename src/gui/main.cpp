@@ -17,7 +17,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	const int ID_DELETE_NETWORK = 4;
 	const int ID_EXIT = 5;
 
-	SetSize(wxSize(370, 270));
+	SetSize(wxSize(370, 320));
 	SetTitle(wxT("netvfy-agent"));
 #ifdef WIN32
 	SetIcon(wxICON(AppIcon));
@@ -33,7 +33,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	wxBoxSizer *sizer_5 = new wxBoxSizer(wxVERTICAL);
 
 	static_text_1 = new wxStaticText(notebook_1_pane_1,
-		wxID_ANY, wxT("Not Connected."));
+		wxID_ANY, wxT("Disconnected."));
 	static_text_2 = new wxTextCtrl(notebook_1_pane_1, wxID_ANY,
 		wxEmptyString, wxDefaultPosition, wxSize(-1,-1), wxTE_READONLY | wxNO_BORDER);
 	static_text_2->SetBackgroundColour(this->GetBackgroundColour());
@@ -44,6 +44,11 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	button_1 = new wxButton(notebook_1_pane_1, ID_CONNECT, wxT("Connect"));
 	Connect(ID_CONNECT, wxEVT_COMMAND_BUTTON_CLICKED,
 		wxCommandEventHandler(MyFrame::onClickConnect));
+
+	button_1_b = new wxButton(notebook_1_pane_1, ID_DISCONNECT, wxT("Disconnect"));
+	Connect(ID_DISCONNECT, wxEVT_COMMAND_BUTTON_CLICKED,
+		wxCommandEventHandler(MyFrame::onClickDisconnect));
+	button_1_b->Enable(false);
 
 	button_2 = new wxButton(notebook_1_pane_1, ID_ADD_NETWORK, wxT("Add"));
 	Connect(ID_ADD_NETWORK, wxEVT_COMMAND_BUTTON_CLICKED,
@@ -62,7 +67,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_2->Add(sizer_4, 1, wxEXPAND, 0);
 
 	sizer_3->Add(10,10,0,0,0);
-	sizer_3->Add(static_text_1, 1, wxALIGN_LEFT, 5);
+	sizer_3->Add(static_text_1, 1, wxALIGN_LEFT, 0);
 	sizer_3->Add(static_text_2, 1, wxALIGN_LEFT, 0);
 	sizer_3->Add(10,10,0,0,0);
 
@@ -70,13 +75,14 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_4->Add(sizer_5, 1, wxEXPAND, 0);
 
 	sizer_5->Add(button_1, 0, wxALIGN_CENTER, 0);
+  	sizer_5->Add(button_1_b, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(10,10,0,0,0);
 	sizer_5->Add(button_2, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(button_3, 0, wxALIGN_CENTER, 0);
 #ifdef WIN32
 	sizer_5->Add(10,35,0,0,0);
 #else
-	sizer_5->Add(10,55,0,0,0);
+	sizer_5->Add(10,35,0,0,0);
 #endif
 	sizer_5->Add(button_exit, 0, wxALIGN_CENTER, 0);
 
@@ -98,7 +104,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	notebook_1_General = new wxPanel(notebook_1, wxID_ANY);
 	notebook_1->AddPage(notebook_1_General, wxT("General"));
 	*/
-    
+
 	notebook_1_Logactivity->SetSizer(sizer_1);
 	notebook_1_pane_1->SetSizer(sizer_2);
 
@@ -127,6 +133,7 @@ void MyFrame::onClickConnect(wxCommandEvent &event)
 	int		 id;
 	const char	*network;
 
+	static_text_1->SetLabel("Connecting...");
 	id = this->list_box_1->GetSelection();
 	/* If nothing is selected yet, just do nothing */
 	if (id == -1)
@@ -135,8 +142,6 @@ void MyFrame::onClickConnect(wxCommandEvent &event)
 	wstr = this->list_box_1->GetString(id);
 	network = wstr.mb_str(wxConvUTF8);
 	agent_thread_start(network);
-
-	button_1->Enable(false);
 }
 
 void MyFrame::onClickAddNetwork(wxCommandEvent &event)
@@ -209,12 +214,23 @@ void MyFrame::onClickExit(wxCommandEvent &event)
 	wxWindow::Destroy();
 }
 
-/*
 void MyFrame::onClickDisconnect(wxCommandEvent &event)
 {
+	this->static_text_1->SetLabel("Disconnecting...");
+	this->static_text_2->SetLabel("");
+
 	agent_thread_fini();
+
+	this->button_1->Enable(true);
+	this->button_1_b->Enable(false);
+
+	this->list_box_1->Enable(true);
+	this->button_2->Enable(true);
+	this->button_3->Enable(true);
+
+	this->static_text_1->SetLabel("Disconnected.");
 }
-*/
+
 
 void MyFrame::onClose(wxCloseEvent &event)
 {
@@ -267,6 +283,13 @@ void MyFrame::updateConnect(wxString ip)
 {
 	frame->static_text_1->SetLabel("Now Connected");
 	frame->static_text_2->SetLabel(ip);
+
+	frame->button_1->Enable(false);
+	frame->button_1_b->Enable(true);
+
+	frame->list_box_1->Enable(false);
+	frame->button_2->Enable(false);
+	frame->button_3->Enable(false);
 }
 void MyFrame::onConnect(const char *ip)
 {
@@ -275,7 +298,6 @@ void MyFrame::onConnect(const char *ip)
 
 void MyFrame::updateDisconnect()
 {
-	frame->static_text_1->SetLabel("Not Connected");
 	frame->static_text_2->SetLabel("");
 }
 

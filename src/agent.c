@@ -127,10 +127,14 @@ void _agent_start(void *arg)
 void
 agent_thread_fini(void)
 {
+	log_info("logging out...");
 	event_base_loopbreak(ev_base);
 	pthread_join(thread_start, NULL);
+	control_fini();
+	switch_fini();
 	agent_fini();
 	free(netname);
+	log_info("logged out...");
 }
 
 void
