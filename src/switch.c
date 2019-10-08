@@ -767,6 +767,8 @@ switch_fini(void)
 	vlink_free(vlink);
 	vlink = NULL;
 
-	if (ev_iface != NULL)
+	if (ev_iface != NULL) {
 		event_free(ev_iface);
+		ev_iface = NULL;
+	}
 }

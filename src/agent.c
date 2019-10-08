@@ -129,6 +129,8 @@ agent_thread_fini(void)
 {
 	event_base_loopbreak(ev_base);
 	pthread_join(thread_start, NULL);
+	control_fini();
+	switch_fini();
 	agent_fini();
 	free(netname);
 }
