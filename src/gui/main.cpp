@@ -80,7 +80,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_5->Add(button_2, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(button_3, 0, wxALIGN_CENTER, 0);
 #ifdef WIN32
-	sizer_5->Add(10,35,0,0,0);
+	sizer_5->Add(10,10,0,0,0);
 #else
 	sizer_5->Add(10,35,0,0,0);
 #endif
