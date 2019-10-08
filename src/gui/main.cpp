@@ -139,6 +139,13 @@ void MyFrame::onClickConnect(wxCommandEvent &event)
 	if (id == -1)
 		return;
 
+	this->button_1->Enable(false);
+	this->button_1_b->Enable(true);
+
+	this->list_box_1->Enable(false);
+	this->button_2->Enable(false);
+	this->button_3->Enable(false);
+
 	wstr = this->list_box_1->GetString(id);
 	network = wstr.mb_str(wxConvUTF8);
 	agent_thread_start(network);
@@ -283,13 +290,6 @@ void MyFrame::updateConnect(wxString ip)
 {
 	frame->static_text_1->SetLabel("Now Connected");
 	frame->static_text_2->SetLabel(ip);
-
-	frame->button_1->Enable(false);
-	frame->button_1_b->Enable(true);
-
-	frame->list_box_1->Enable(false);
-	frame->button_2->Enable(false);
-	frame->button_3->Enable(false);
 }
 void MyFrame::onConnect(const char *ip)
 {
