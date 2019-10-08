@@ -34,7 +34,6 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 
 	static_text_1 = new wxStaticText(notebook_1_pane_1,
 		wxID_ANY, wxT("Disconnected."));
-	// TODO(sneha): the static_text_2 height/width is a bit off and needs to be fixed
 	static_text_2 = new wxTextCtrl(notebook_1_pane_1, wxID_ANY,
 		wxEmptyString, wxDefaultPosition, wxSize(-1,-1), wxTE_READONLY | wxNO_BORDER);
 	static_text_2->SetBackgroundColour(this->GetBackgroundColour());
@@ -284,7 +283,7 @@ void MyFrame::updateConnect(wxString ip)
 {
 	frame->static_text_1->SetLabel("Now Connected");
 	frame->static_text_2->SetLabel(ip);
-	
+
 	frame->button_1->Enable(false);
 	frame->button_1_b->Enable(true);
 
