@@ -33,7 +33,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	wxBoxSizer *sizer_5 = new wxBoxSizer(wxVERTICAL);
 
 	static_text_1 = new wxStaticText(notebook_1_pane_1,
-		wxID_ANY, wxT("Not Connected."));
+		wxID_ANY, wxT("Disconnected."));
 	// TODO(sneha): the static_text_2 height/width is a bit off and needs to be fixed
 	static_text_2 = new wxTextCtrl(notebook_1_pane_1, wxID_ANY,
 		wxEmptyString, wxDefaultPosition, wxSize(-1,-1), wxTE_READONLY | wxNO_BORDER);
@@ -134,6 +134,7 @@ void MyFrame::onClickConnect(wxCommandEvent &event)
 	int		 id;
 	const char	*network;
 
+	static_text_1->SetLabel("Connecting...");
 	id = this->list_box_1->GetSelection();
 	/* If nothing is selected yet, just do nothing */
 	if (id == -1)
@@ -142,9 +143,6 @@ void MyFrame::onClickConnect(wxCommandEvent &event)
 	wstr = this->list_box_1->GetString(id);
 	network = wstr.mb_str(wxConvUTF8);
 	agent_thread_start(network);
-
-	button_1->Enable(false);
-	button_1_b->Enable(true);
 }
 
 void MyFrame::onClickAddNetwork(wxCommandEvent &event)
@@ -219,10 +217,19 @@ void MyFrame::onClickExit(wxCommandEvent &event)
 
 void MyFrame::onClickDisconnect(wxCommandEvent &event)
 {
+	this->static_text_1->SetLabel("Disconnecting...");
+	this->static_text_2->SetLabel("");
+
 	agent_thread_fini();
-	button_1->Enable(true);
-	button_1_b->Enable(false);
-	static_text_2->SetLabel("");
+
+	this->button_1->Enable(true);
+	this->button_1_b->Enable(false);
+
+	this->list_box_1->Enable(true);
+	this->button_2->Enable(true);
+	this->button_3->Enable(true);
+
+	this->static_text_1->SetLabel("Disconnected.");
 }
 
 
@@ -277,6 +284,13 @@ void MyFrame::updateConnect(wxString ip)
 {
 	frame->static_text_1->SetLabel("Now Connected");
 	frame->static_text_2->SetLabel(ip);
+	
+	frame->button_1->Enable(false);
+	frame->button_1_b->Enable(true);
+
+	frame->list_box_1->Enable(false);
+	frame->button_2->Enable(false);
+	frame->button_3->Enable(false);
 }
 void MyFrame::onConnect(const char *ip)
 {
@@ -285,7 +299,6 @@ void MyFrame::onConnect(const char *ip)
 
 void MyFrame::updateDisconnect()
 {
-	frame->static_text_1->SetLabel("Not Connected");
 	frame->static_text_2->SetLabel("");
 }
 
