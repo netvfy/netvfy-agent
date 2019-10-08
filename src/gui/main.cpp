@@ -222,6 +222,7 @@ void MyFrame::onClickDisconnect(wxCommandEvent &event)
 	agent_thread_fini();
 	button_1->Enable(true);
 	button_1_b->Enable(false);
+	static_text_2->SetLabel("");
 }
 
 
