@@ -86,13 +86,6 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 #endif
 	sizer_5->Add(button_exit, 0, wxALIGN_CENTER, 0);
 
-
-	/* TODO (we don't need it for now)
-	button_2 = new wxButton(notebook_1_pane_1, ID_DISCONNECT, wxT("Disconnect!"));
-	Connect(ID_DISCONNECT, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MyFrame::onClickDisconnect));
-	sizer_4->Add(button_2, 0, 0, 0);
-	*/
-
 	notebook_1_Logactivity = new wxPanel(notebook_1, wxID_ANY);
 	notebook_1->AddPage(notebook_1_Logactivity, wxT("Log activity"));
 	wxBoxSizer *sizer_1 = new wxBoxSizer(wxVERTICAL);
