@@ -97,7 +97,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	notebook_1->AddPage(notebook_1_Logactivity, wxT("Log activity"));
 	wxBoxSizer *sizer_1 = new wxBoxSizer(wxVERTICAL);
 	text_ctrl_1 = new wxTextCtrl(notebook_1_Logactivity, wxID_ANY,
-		wxEmptyString, wxDefaultPosition, wxSize(500,300), wxTE_MULTILINE);
+		wxEmptyString, wxDefaultPosition, wxSize(500,300), wxTE_READONLY | wxTE_MULTILINE);
 	sizer_1->Add(text_ctrl_1, 0, wxEXPAND|wxSHAPED, 0);
 
 	/* TODO (we don't need it for now)
