@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 project(netvfy)
 
-SET(CPACK_PACKAGE_VERSION "1.0.1")
-SET(NVAGENT_VERSION "1.0.1")
-
 enable_testing()
 
 # Using Hardening Options
@@ -19,12 +16,22 @@ set(HARDENING OPTIONS_COMMON
     -D_FORTIFY_SOURCE=2
 )
 
+set(CORE_VERSION "1.0.1")
+set(GUI_VERSION "g1")
+set(CLI_VERSION "c1")
+
 if (WITH_GUI)
 	set(CPACK_PACKAGE_NAME "netvfy-agent-gui")
 	set(USE_THREAD "-DUSE_THREAD")
+	set(CPACK_PACKAGE_VERSION "${CORE_VERSION}${GUI_VERSION}")
+	set(NVAGENT_VERSION "${CORE_VERSION}${GUI_VERSION}")
 else()
 	set(CPACK_PACKAGE_NAME "netvfy-agent-cli")
+	set(CPACK_PACKAGE_VERSION "${CORE_VERSION}${CLI_VERSION}")
+	set(NVAGENT_VERSION "${CORE_VERSION}${CLI_VERSION}")
 endif()
+
+
 
 if (WIN32)
     set(compiler_options "${HARDENING_OPTIONS_COMMON} -fPIE -O1 ${USE_THREAD}")
