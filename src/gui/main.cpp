@@ -17,7 +17,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	const int ID_DELETE_NETWORK = 4;
 	const int ID_EXIT = 5;
 
-	SetSize(wxSize(370, 320));
+	SetSize(wxSize(370, 270));
 	SetTitle(wxT("netvfy-agent"));
 #ifdef WIN32
 	SetIcon(wxICON(AppIcon));
@@ -75,29 +75,22 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	sizer_4->Add(sizer_5, 1, wxEXPAND, 0);
 
 	sizer_5->Add(button_1, 0, wxALIGN_CENTER, 0);
-  	sizer_5->Add(button_1_b, 0, wxALIGN_CENTER, 0);
+	sizer_5->Add(button_1_b, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(10,10,0,0,0);
 	sizer_5->Add(button_2, 0, wxALIGN_CENTER, 0);
 	sizer_5->Add(button_3, 0, wxALIGN_CENTER, 0);
 #ifdef WIN32
-	sizer_5->Add(10,35,0,0,0);
+	sizer_5->Add(10,10,0,0,0);
 #else
 	sizer_5->Add(10,35,0,0,0);
 #endif
 	sizer_5->Add(button_exit, 0, wxALIGN_CENTER, 0);
 
-
-	/* TODO (we don't need it for now)
-	button_2 = new wxButton(notebook_1_pane_1, ID_DISCONNECT, wxT("Disconnect!"));
-	Connect(ID_DISCONNECT, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(MyFrame::onClickDisconnect));
-	sizer_4->Add(button_2, 0, 0, 0);
-	*/
-
 	notebook_1_Logactivity = new wxPanel(notebook_1, wxID_ANY);
 	notebook_1->AddPage(notebook_1_Logactivity, wxT("Log activity"));
 	wxBoxSizer *sizer_1 = new wxBoxSizer(wxVERTICAL);
 	text_ctrl_1 = new wxTextCtrl(notebook_1_Logactivity, wxID_ANY,
-		wxEmptyString, wxDefaultPosition, wxSize(500,300), wxTE_MULTILINE);
+		wxEmptyString, wxDefaultPosition, wxSize(500,300), wxTE_READONLY | wxTE_MULTILINE);
 	sizer_1->Add(text_ctrl_1, 0, wxEXPAND|wxSHAPED, 0);
 
 	/* TODO (we don't need it for now)
@@ -138,6 +131,13 @@ void MyFrame::onClickConnect(wxCommandEvent &event)
 	/* If nothing is selected yet, just do nothing */
 	if (id == -1)
 		return;
+
+	this->button_1->Enable(false);
+	this->button_1_b->Enable(true);
+
+	this->list_box_1->Enable(false);
+	this->button_2->Enable(false);
+	this->button_3->Enable(false);
 
 	wstr = this->list_box_1->GetString(id);
 	network = wstr.mb_str(wxConvUTF8);
@@ -216,6 +216,13 @@ void MyFrame::onClickExit(wxCommandEvent &event)
 
 void MyFrame::onClickDisconnect(wxCommandEvent &event)
 {
+	wxMessageDialog	*myDialog = new wxMessageDialog(NULL,
+		wxT("Are you sure you want to disconnect ?"), wxT("Netvfy-Agent"),
+		wxYES_NO | wxNO_DEFAULT | wxICON_EXCLAMATION);
+	if (myDialog->ShowModal() != wxID_YES) {
+		return;
+	}
+
 	this->static_text_1->SetLabel("Disconnecting...");
 	this->static_text_2->SetLabel("");
 
@@ -283,13 +290,6 @@ void MyFrame::updateConnect(wxString ip)
 {
 	frame->static_text_1->SetLabel("Now Connected");
 	frame->static_text_2->SetLabel(ip);
-
-	frame->button_1->Enable(false);
-	frame->button_1_b->Enable(true);
-
-	frame->list_box_1->Enable(false);
-	frame->button_2->Enable(false);
-	frame->button_3->Enable(false);
 }
 void MyFrame::onConnect(const char *ip)
 {
