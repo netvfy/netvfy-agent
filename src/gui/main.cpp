@@ -18,7 +18,7 @@ MyFrame::MyFrame(wxWindow* parent, wxWindowID id, const wxString& title, const w
 	const int ID_EXIT = 5;
 
 	SetSize(wxSize(370, 270));
-	SetTitle(wxT("netvfy-agent"));
+	SetTitle( _("netvfy-agent") + _(" (v") + _(NVAGENT_VERSION) + _(")") );
 #ifdef WIN32
 	SetIcon(wxICON(AppIcon));
 #endif
