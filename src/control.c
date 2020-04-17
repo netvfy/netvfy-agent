@@ -440,6 +440,7 @@ fetch_netinfos(struct vlink *v)
 
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fetch_netinfos_cb);
+	curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, v);
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L);
 
