@@ -385,7 +385,7 @@ ndb_provisioning(const char *provlink, const char *network_name)
 	}
 
 	//TODO(sneha): when should this be changed for pki
-	nva_id = pki_digital_id("",  "", "", "", "contact@dynvpn.com", "www.dynvpn.com");
+	nva_id = pki_digital_id("",  "", "", "", "help@netvfy", "www.netvfy.com");
 
 	/* generate RSA public and private keys */
 	keyring = pki_generate_keyring();
@@ -467,11 +467,12 @@ ndb_provisioning(const char *provlink, const char *network_name)
 
 		/* Check for errors */
 		if (res != CURLE_OK)
-			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+			fprintf(stderr, "curl_easy_perform failed: %s\n",
 			    curl_easy_strerror(res));
 
 		if (netcf->buf_total == 0) {
-			fprintf(stdout, "%s: empty response from server, maybe the key is invalid or already been used.\n", __func__);
+			fprintf(stdout, "%s: empty response from server, "
+			    "the key is invalid or already been used.\n", __func__);
 			goto out;
 		}
 
