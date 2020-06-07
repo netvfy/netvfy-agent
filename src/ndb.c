@@ -470,6 +470,11 @@ ndb_provisioning(const char *provlink, const char *network_name)
 			fprintf(stderr, "curl_easy_perform() failed: %s\n",
 			    curl_easy_strerror(res));
 
+		if (netcf->buf_total == 0) {
+			fprintf(stdout, "%s: empty response from server, maybe the key is invalid or already been used.\n", __func__);
+			goto out;
+		}
+
 		/* Parse the json output */
 		if ((jmsg = json_loadb((const char *)netcf->buf, netcf->buf_total, 0, &error)) == NULL) {
 			fprintf(stdout, "%s: json_loadb - %s\n", __func__, error.text);
