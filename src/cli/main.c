@@ -33,6 +33,7 @@ usage(void)
 	    "\t-l\tList networks\n"
 	    "\t-c\tConnect [network name]\n"
 	    "\t-d\tDelete [network name]\n"
+	    "\t-i\tset Interface name to network name (linux only)\n"
 	    "\t-h\thelp\n", __progname);
 	exit(1);
 }
@@ -44,11 +45,12 @@ main(int argc, char *argv[])
 	int		 list_networks = 0;
 	int		 del_network = 0;
 	int		 version = 0;
+	int		 set_iface = 0;
 	char		*provcode = NULL;
 	char		*network_name = NULL;
 	char		 new_name[64];
 
-	while ((ch = getopt(argc, argv, "hk:n:lc:d:v")) != -1) {
+	while ((ch = getopt(argc, argv, "hk:n:lc:d:iv")) != -1) {
 
 		switch (ch) {
 		case 'n':
@@ -66,6 +68,9 @@ main(int argc, char *argv[])
 		case 'd':
 			del_network = 1;
 			network_name = optarg;
+			break;
+		case 'i':
+			set_iface = 1;
 			break;
 		case 'v':
 			version = 1;
@@ -123,7 +128,7 @@ main(int argc, char *argv[])
 			goto out;
 
 	} else if (network_name) {
-		agent_start(network_name);
+		agent_start(network_name, set_iface);
 	} else {
 		usage();
 	}

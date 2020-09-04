@@ -60,13 +60,13 @@ struct network	*ndb_network(const char *);
 int		 ndb_network_remove(const char *);
 int		 ndb_provisioning(const char *, const char *);
 
-int		 control_init(const char *);
+int		 control_init(const char *, int);
 void		 control_fini(void);
 
 void		 agent_init_cb(void);
 void		 agent_init(void);
 void		 agent_fini(void);
-void		 agent_start(const char *);
+void		 agent_start(const char *, int);
 #ifdef USE_THREAD
 void		 agent_thread_fini(void);
 void		 agent_thread_start(const char*);

@@ -110,10 +110,10 @@ agent_fini(void)
 }
 
 void
-agent_start(const char *name)
+agent_start(const char *name, int set_iface)
 {
 	agent_init();
-	control_init(name);
+	control_init(name, set_iface);
 	event_base_dispatch(ev_base);
 }
 
@@ -121,7 +121,7 @@ agent_start(const char *name)
 void _agent_start(void *arg)
 {
 	const char	*name = arg;
-	agent_start(name);
+	agent_start(name, 0);
 }
 
 void

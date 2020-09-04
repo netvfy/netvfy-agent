@@ -777,7 +777,7 @@ void tapcfg_log(int level, char *msg)
 }
 
 int
-control_init(const char *network_name)
+control_init(const char *network_name, int set_iface)
 {
 	struct network		*netcf = NULL;
 
@@ -809,13 +809,17 @@ control_init(const char *network_name)
 
 	tapcfg_set_log_callback(vlink->tapcfg, tapcfg_log);
 
-	if ((vlink->tapfd = tapcfg_start(vlink->tapcfg, "netvfy0", 1)) < 0) {
-		log_warnx("%s: tapcfg_start", __func__);
+	if ((vlink->netname = strdup(network_name)) == NULL) {
+		log_warn("%s: strdup", __func__);
 		goto error;
 	}
 
-	if ((vlink->netname = strdup(network_name)) == NULL) {
-		log_warn("%s: strdup", __func__);
+	char *iface_name = "netvfy0";
+	if (set_iface)
+		iface_name = network_name;
+
+	if ((vlink->tapfd = tapcfg_start(vlink->tapcfg, iface_name, 1)) < 0) {
+		log_warnx("%s: tapcfg_start", __func__);
 		goto error;
 	}
 
