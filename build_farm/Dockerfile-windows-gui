@@ -1,9 +1,9 @@
-FROM debian:stretch
+FROM debian:buster
 
 RUN apt-get update -qq && apt-get install -yq --no-install-recommends ca-certificates curl scons cmake build-essential mingw-w64 nsis unzip p7zip-full wget
 
-ENV LIBJANSSON_VERSION 2.12
-ENV LIBJANSSON_URL "http://www.digip.org/jansson/releases/jansson-${LIBJANSSON_VERSION}.tar.bz2"
+ENV LIBJANSSON_VERSION 2.13
+ENV LIBJANSSON_URL "http://digip.org/jansson/releases/jansson-${LIBJANSSON_VERSION}.tar.bz2"
 RUN curl "${LIBJANSSON_URL}" | tar xjf - -C /usr/src
 WORKDIR "/usr/src/jansson-${LIBJANSSON_VERSION}"
 RUN CC=i686-w64-mingw32-gcc CPPFLAGS=-D__MINGW_USE_VC2005_COMPAT ./configure --host=i686-w64-mingw32
@@ -26,7 +26,7 @@ RUN CC=i686-w64-mingw32-gcc CPPFLAGS="-D__MINGW_USE_VC2005_COMPAT" ./configure -
 RUN make
 
 ENV LIBCURL_VERSION "7.65.3"
-ENV LIBCURL_URL "https://curl.haxx.se/download/curl-${LIBCURL_VERSION}.tar.gz"
+ENV LIBCURL_URL "https://curl.se/download/curl-${LIBCURL_VERSION}.tar.gz"
 RUN curl "${LIBCURL_URL}" | tar xzf - -C /usr/src
 WORKDIR "/usr/src/curl-${LIBCURL_VERSION}"
 RUN CC=i686-w64-mingw32-gcc ./configure --host=i686-w64-mingw32 --disable-ftp --disable-file --disable-ldap --disable-ldaps --disable-rtsp --disable-proxy --disable-dict --disable-telnet --disable-tftp --disable-pop3 --disable-imap --disable-smb --disable-smtp --disable-gopher \
@@ -71,7 +71,7 @@ CMD true && \
              -DLIBCURL_PATH="/usr/src/curl-${LIBCURL_VERSION}" \
              -DLIBJANSSON_PATH="/usr/src/jansson-${LIBJANSSON_VERSION}" \
              -DTAPCFG_PATH="/usr/src/tapcfg" \
-             -DMINGW_PATH="/usr/lib/gcc/i686-w64-mingw32/6.3-win32" \
+             -DMINGW_PATH="/usr/lib/gcc/i686-w64-mingw32/8.3-win32" \
              -DBDIR="${PWD}" \
              -DOUTFILE="/tmp/netvfy-agent-gui_x86.exe" \
              ../netvfy-agent/win32/package_win32.nsi && \
