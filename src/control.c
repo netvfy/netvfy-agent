@@ -589,7 +589,8 @@ vlink_connect(struct tls_peer *p, struct vlink *v)
 
 out:
 	EC_KEY_free(ecdh);
-	freeaddrinfo(res);
+	if (res != NULL)
+		freeaddrinfo(res);
 
 	return (err);
 
