@@ -5,3 +5,9 @@ netvfy-agent 1.0.2
 
 Initial version
 netvfy-agent 1.0.1
+
+
+---
+Alpine linux
+apk add linux-headers
+apk add build-base make
